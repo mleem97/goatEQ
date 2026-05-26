@@ -1,0 +1,32 @@
+{
+   "author": "marvin",
+   "background": {
+      "scripts": ["sw.js"]
+   },
+   "action": {
+      "default_icon": "goateq128.png",
+      "default_popup": "popup.html"
+   },
+   "browser_specific_settings": {
+      "gecko": {
+         "id": "goateq@goateq.ext",
+         "strict_min_version": "109.0"
+      }
+   },
+   "content_security_policy": {
+      "extension_pages": "script-src 'self'; object-src 'self'"
+   },
+   "description": "Gain Optimization & Audio Treatment for your browser. EQ any audio you find on the web, live!",
+   "icons": {
+      "128": "goateq128.png",
+      "16": "goateq16.png",
+      "32": "goateq32.png",
+      "48": "goateq48.png",
+      "64": "goateq64.png"
+   },
+   "manifest_version": 3,
+   "name": "goatEQ: Gain Optimization & Audio Treatment",
+   "permissions": [ "activeTab", "tabCapture", "tabs", "storage", "offscreen" ],
+   "short_name": "goatEQ",
+   "version": "1.0.0"
+}

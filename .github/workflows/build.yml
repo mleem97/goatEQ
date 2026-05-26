@@ -23,66 +23,42 @@ jobs:
       - name: Read version from manifest
         id: version
         run: |
-          VERSION=$(jq -r '.version' manifest.json)
+          VERSION=$(jq -r '.version' chromium/manifest.json)
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           echo "Building goatEQ v$VERSION"
 
-      - name: Build Chrome / Edge Extension (.zip)
+      - name: Build Chromium Extension (.zip)
         run: |
+          VERSION=${{ steps.version.outputs.version }}
           mkdir -p dist
-          zip -r "dist/goatEQ-v${{ steps.version.outputs.version }}-chrome.zip" \
-            manifest.json \
-            sw.js \
-            bg.js \
-            popup.html \
-            popup.js \
-            popup.css \
-            offscreen.html \
-            snap.svg-min.js \
-            goateq16.png \
-            goateq32.png \
-            goateq48.png \
-            goateq64.png \
-            goateq128.png
-          echo "✅ Chrome/Edge package built"
+          tmpdir=$(mktemp -d)
+          cp chromium/manifest.json sw.js bg.js popup.html popup.js popup.css \
+             offscreen.html snap.svg-min.js \
+             goateq16.png goateq32.png goateq48.png goateq64.png goateq128.png "$tmpdir/"
+          cd "$tmpdir" && zip -r "$GITHUB_WORKSPACE/dist/goatEQ-v${VERSION}-chrome.zip" . && cd "$GITHUB_WORKSPACE"
+          rm -rf "$tmpdir"
+
+      - name: Build Edge Extension (.zip)
+        run: |
+          VERSION=${{ steps.version.outputs.version }}
+          mkdir -p dist
+          tmpdir=$(mktemp -d)
+          cp edge/manifest.json sw.js bg.js popup.html popup.js popup.css \
+             offscreen.html snap.svg-min.js \
+             goateq16.png goateq32.png goateq48.png goateq64.png goateq128.png "$tmpdir/"
+          cd "$tmpdir" && zip -r "$GITHUB_WORKSPACE/dist/goatEQ-v${VERSION}-edge.zip" . && cd "$GITHUB_WORKSPACE"
+          rm -rf "$tmpdir"
 
       - name: Build Firefox Extension (.xpi)
         run: |
-          mkdir -p build-firefox
-
-          # Copy all extension files
-          cp manifest.json sw.js bg.js popup.html popup.js popup.css \
+          VERSION=${{ steps.version.outputs.version }}
+          mkdir -p dist
+          tmpdir=$(mktemp -d)
+          cp firefox/manifest.json sw.js bg.js popup.html popup.js popup.css \
              offscreen.html snap.svg-min.js \
-             goateq16.png goateq32.png goateq48.png goateq64.png goateq128.png \
-             build-firefox/
-
-          # Adapt manifest for Firefox
-          cd build-firefox
-          jq '
-            . + {
-              "browser_specific_settings": {
-                "gecko": {
-                  "id": "goateq@goateq.ext",
-                  "strict_min_version": "109.0"
-                }
-              }
-            }
-            | del(.key)
-            | del(.update_url)
-            | .background = {"scripts": [.background.service_worker]}
-            | del(.background.service_worker)
-          ' manifest.json > manifest_ff.json
-          mv manifest_ff.json manifest.json
-
-          cd ..
-          cd build-firefox && zip -r "../dist/goatEQ-v${{ steps.version.outputs.version }}-firefox.xpi" . && cd ..
-          echo "✅ Firefox package built"
-
-      - name: Copy Chrome zip as Edge package
-        run: |
-          cp "dist/goatEQ-v${{ steps.version.outputs.version }}-chrome.zip" \
-             "dist/goatEQ-v${{ steps.version.outputs.version }}-edge.zip"
-          echo "✅ Edge package built (identical to Chrome)"
+             goateq16.png goateq32.png goateq48.png goateq64.png goateq128.png "$tmpdir/"
+          cd "$tmpdir" && zip -r "$GITHUB_WORKSPACE/dist/goatEQ-v${VERSION}-firefox.xpi" . && cd "$GITHUB_WORKSPACE"
+          rm -rf "$tmpdir"
 
       - name: List build artifacts
         run: ls -lh dist/
@@ -112,9 +88,9 @@ jobs:
           name: "goatEQ v${{ steps.version.outputs.version }}"
           body: |
             ## goatEQ v${{ steps.version.outputs.version }}
-            
+
             **Gain Optimization & Audio Treatment** for your browser.
-            
+
             ### Downloads
             | Browser | File | Install |
             |---------|------|---------|
