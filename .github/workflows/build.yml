@@ -69,6 +69,8 @@ jobs:
             }
             | del(.key)
             | del(.update_url)
+            | .background = {"scripts": [.background.service_worker]}
+            | del(.background.service_worker)
           ' manifest.json > manifest_ff.json
           mv manifest_ff.json manifest.json
 
