@@ -1,15 +1,7 @@
-var _gaq = {
-  push: function(arr) {
-    console.log("GA event stub:", arr);
-  }
-};
 function scope(){
 var J = "1.0.0";
 try { if (typeof chrome !== "undefined" && 'runtime' in chrome && 'getManifest' in chrome.runtime) { J = chrome.runtime.getManifest().version; } } catch(e) {}
 var e="11/22/2017";
-_gaq.push(["_setAccount","UA-64913318-2"]);
-_gaq.push(["_trackPageview"]);
-_gaq.push(["_trackEvent","backgroundOpen",J]);
 var U="VERSION";
 var i="PRESETS";
 var a="PRESETS.";
@@ -100,7 +92,6 @@ console.log(chrome.runtime.lastError)}
 n()}
 )}
 function ne(e,t){
-_gaq.push(["_trackEvent","deletePreset",e.preset]);
 var n=JSON.parse(localStorage[i]);
 if(n==null||typeof n!="object"){
 n={
@@ -314,7 +305,6 @@ return JSON.parse(localStorage["GAIN"])}
 function h(e){
 localStorage["GAIN"]=JSON.stringify(e)}
 function S(e){
-_gaq.push(["_trackEvent","preset","save"]);
 var t=[];
 var n=[];
 var r=[];
@@ -352,7 +342,6 @@ r=o.qs}
 else{
 return}
 }
-_gaq.push(["_trackEvent","preset","set"]);
 for(var a=0;
 a<t.length;
 a++){
@@ -424,12 +413,11 @@ if(!e){
 console.log("null stream, aborting");
 return}
 if(n){
-_gaq.push(["_trackEvent","tabStream","added"])}
+}
 if(Object.keys(Y).length==0){
 M.resume()}
 if(t.id in Y){
 console.log("had stream, stopping");
-_gaq.push(["_trackEvent","tabStream","hadDuplicate"]);
 Y[t.id].stream.getTracks()[0].stop();
 delete Y[t.id]}
 var r=M.createMediaStreamSource(e);
@@ -466,12 +454,10 @@ else if(t.status=="stopped"||t.status=="error"){
 delete R[t.tabId]}
 }
 function j(){
-_gaq.push(["_trackEvent","currentTab","removed"]);
 N(I)}
 function I(e){
 console.log("disconnectedTab id "+e.id);
 if(e.id in Y){
-_gaq.push(["_trackEvent","tabStream","removed"]);
 var t=Y[e.id].stream;
 t.getTracks()[0].stop();
 delete Y[e.id]}
@@ -488,13 +474,12 @@ index:e,gain:0,frequency:z[e],q:H[e]}
 y({
 gain:1}
 );
-_gaq.push(["_trackEvent","filterUpdated","resetAll"]);
 E()}
 function A(e){
 u({
 index:e.index,gain:0,frequency:z[e.index],q:H[e.index]}
 );
-_gaq.push(["_trackEvent","filterUpdated","reset"])}
+}
 function F(){
 function t(e,t){
 var n=document.createElement("a");
@@ -551,9 +536,9 @@ u(e)}
 if(e.type=="modifyGain"){
 y(e)}
 if(e.type=="gainUpdated"){
-_gaq.push(["_trackEvent","gainUpdated","gain"])}
+}
 if(e.type=="filterUpdated"){
-_gaq.push(["_trackEvent","filterUpdated",e.filterType])}
+}
 if(e.type=="disconnectTab"){
 I(e.tab)}
 if(e.type=="resetFilters"){

@@ -1,13 +1,5 @@
-var _gaq = {
-  push: function(arr) {
-    console.log("GA event stub:", arr);
-  }
-};
 function scope(){
 var e=chrome.runtime.getManifest().version;
-_gaq.push(["_setAccount","UA-64913318-2"]);
-_gaq.push(["_trackPageview"]);
-_gaq.push(["_trackEvent","popupOpen",e]);
 var t=localStorage;
 var p=null;
 // GA script injection removed for MV3 compatibility

@@ -1,16 +1,6 @@
-var _gaq = {
-  push: function(arr) {
-    console.log("GA event stub:", arr);
-  }
-};
-
 (function(){
 var VERSION = "1.0.0";
 try { if (typeof chrome !== "undefined" && 'runtime' in chrome && 'getManifest' in chrome.runtime) { VERSION = chrome.runtime.getManifest().version; } } catch(e) {}
-_gaq.push(["_setAccount","UA-64913318-2"]);
-_gaq.push(["_trackPageview"]);
-_gaq.push(["_trackEvent","backgroundOpen",VERSION]);
-
 var STORE_KEY="VERSION";
 var PRESETS_KEY="PRESETS";
 var PRESET_PREFIX="PRESETS.";
@@ -70,7 +60,6 @@ if(chrome.runtime.lastError){console.log(chrome.runtime.lastError)}
 n()}
 )}
 function ne(e,t){
-_gaq.push(["_trackEvent","deletePreset",e.preset]);
 var n=JSON.parse(localStorage[PRESETS_KEY]);
 if(n==null||typeof n!="object"){n={}}
 delete n[e.preset];
@@ -198,7 +187,6 @@ function y(e){var t=g(e.gain);G.gain.value=g(t);h(t)}
 function m(){if(!localStorage["GAIN"]){localStorage["GAIN"]=JSON.stringify(1)}return JSON.parse(localStorage["GAIN"])}
 function h(e){localStorage["GAIN"]=JSON.stringify(e)}
 function S(e){
-_gaq.push(["_trackEvent","preset","save"]);
 var t=[];var n=[];var r=[];
 for(var a=0;a<V.length;a++){
 var o=V[a];
@@ -216,7 +204,6 @@ var o=e[i.preset];
 if(o){t=o.frequencies;n=o.gains;r=o.qs}
 else{return}
 }
-_gaq.push(["_trackEvent","preset","set"]);
 for(var a=0;a<t.length;a++){u({index:a,frequency:t[a],gain:n[a],q:r[a]})}
 E()}
 )}
@@ -248,9 +235,9 @@ function w(){
 N(function(e){chrome.runtime.sendMessage({type:"sendCurrentTabStatus",streaming:e.id in Y})})}
 function T(e,t,n){
 if(!e){console.log("null stream, aborting");return}
-if(n){_gaq.push(["_trackEvent","tabStream","added"])}
+if(n){}
 if(Object.keys(Y).length==0){M.resume()}
-if(t.id in Y){console.log("had stream, stopping");_gaq.push(["_trackEvent","tabStream","hadDuplicate"]);Y[t.id].stream.getTracks()[0].stop();delete Y[t.id]}
+if(t.id in Y){console.log("had stream, stopping");Y[t.id].stream.getTracks()[0].stop();delete Y[t.id]}
 var r=M.createMediaStreamSource(e);
 r.connect(B);
 Y[t.id]={stream:e,tab:t,audioSource:r}
@@ -267,18 +254,17 @@ else{chrome.windows.update(chrome.windows.WINDOW_ID_CURRENT,{state:C[e.id]||"ful
 if(t.status=="active"){R[t.tabId]=t}
 else if(t.status=="stopped"||t.status=="error"){delete R[t.tabId]}
 }
-function j(){_gaq.push(["_trackEvent","currentTab","removed"]);N(I)}
+function j(){N(I)}
 function I(e){
 console.log("disconnectedTab id "+e.id);
-if(e.id in Y){_gaq.push(["_trackEvent","tabStream","removed"]);var t=Y[e.id].stream;t.getTracks()[0].stop();delete Y[e.id]}
+if(e.id in Y){var t=Y[e.id].stream;t.getTracks()[0].stop();delete Y[e.id]}
 if(Object.keys(Y).length==0){M.suspend()}
 E()}
 function P(){
 for(var e=0;e<K;e++){u({index:e,gain:0,frequency:z[e],q:H[e]})}
 y({gain:1});
-_gaq.push(["_trackEvent","filterUpdated","resetAll"]);
 E()}
-function A(e){u({index:e.index,gain:0,frequency:z[e.index],q:H[e.index]});_gaq.push(["_trackEvent","filterUpdated","reset"])}
+function A(e){u({index:e.index,gain:0,frequency:z[e.index],q:H[e.index]});}
 function F(){
 function t(e,t){
 var n=document.createElement("a");
@@ -352,8 +338,8 @@ if(e.type=="getFullRefresh"){E()}
 if(e.type=="onPopupOpen"){X()}
 if(e.type=="modifyFilter"){u(e)}
 if(e.type=="modifyGain"){y(e)}
-if(e.type=="gainUpdated"){_gaq.push(["_trackEvent","gainUpdated","gain"])}
-if(e.type=="filterUpdated"){_gaq.push(["_trackEvent","filterUpdated",e.filterType])}
+if(e.type=="gainUpdated"){}
+if(e.type=="filterUpdated"){}
 if(e.type=="disconnectTab"){I(e.tab)}
 if(e.type=="resetFilters"){P()}
 if(e.type=="resetFilter"){A(e)}
