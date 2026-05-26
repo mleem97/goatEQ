@@ -54,8 +54,9 @@ jobs:
           VERSION=${{ steps.version.outputs.version }}
           mkdir -p dist
           tmpdir=$(mktemp -d)
-          cp firefox/manifest.json sw.js bg.js popup.html popup.js popup.css \
-             offscreen.html snap.svg-min.js \
+          cp firefox/manifest.json firefox/background.js \
+             popup.html popup.js popup.css \
+             snap.svg-min.js \
              goateq16.png goateq32.png goateq48.png goateq64.png goateq128.png "$tmpdir/"
           cd "$tmpdir" && zip -r "$GITHUB_WORKSPACE/dist/goatEQ-v${VERSION}-firefox.xpi" . && cd "$GITHUB_WORKSPACE"
           rm -rf "$tmpdir"

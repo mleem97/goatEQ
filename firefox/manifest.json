@@ -1,7 +1,7 @@
 {
    "author": "marvin",
    "background": {
-      "scripts": ["sw.js"]
+      "scripts": ["background.js"]
    },
    "action": {
       "default_icon": "goateq128.png",
@@ -10,7 +10,11 @@
    "browser_specific_settings": {
       "gecko": {
          "id": "goateq@goateq.ext",
-         "strict_min_version": "109.0"
+         "strict_min_version": "109.0",
+         "data_collection_permissions": {
+            "description": "goatEQ uses anonymized usage data to improve the extension. No personal data is collected.",
+            "opt_out": true
+         }
       }
    },
    "content_security_policy": {
@@ -26,7 +30,7 @@
    },
    "manifest_version": 3,
    "name": "goatEQ: Gain Optimization & Audio Treatment",
-   "permissions": [ "activeTab", "tabCapture", "tabs", "storage", "offscreen" ],
+   "permissions": [ "activeTab", "tabs", "storage" ],
    "short_name": "goatEQ",
    "version": "1.0.0"
 }
