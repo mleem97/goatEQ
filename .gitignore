@@ -3,6 +3,9 @@ dist/
 build-firefox/
 goateq_source.png
 
+# Extension signing key (keep private! stored in ~/.ssh/browseraddons/)
+goatEQ.pem
+
 # Node and package manager files (if used in the future)
 node_modules/
 npm-debug.log*
