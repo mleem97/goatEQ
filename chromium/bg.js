@@ -34,7 +34,7 @@ console.log(e)}
 var M=null;
 var B=null;
 var G=null;
-var Q=null;
+var Q=null;var Q_before=null;
 var L=null;
 var V=[];
 var z=[20,40,80,160,320,640,1280,2560,5120,10240,20480];
@@ -561,27 +561,26 @@ if(e.type=="deletePreset"){
 ne(e,E)}
 if(e.type=="getFFT"){
 if(W){
-chrome.runtime.sendMessage({
-type:"fft",fft:[]}
-);
+chrome.runtime.sendMessage({type:"fft",fft:[],fftBefore:[]});
 return}
-if(Q){
+if(Q&&Q_before){
 L=performance.now();
 var i=new Float32Array(Q.frequencyBinCount);
 Q.getFloatFrequencyData(i);
-n({
-type:"fft",fft:Array.from(i)}
-)}
+var i_before=new Float32Array(Q_before.frequencyBinCount);
+Q_before.getFloatFrequencyData(i_before);
+n({type:"fft",fft:Array.from(i),fftBefore:Array.from(i_before)})}
 else{
 Q=M.createAnalyser();
 Q.fftSize=4096*2;
 Q.smoothingTimeConstant=.5;
-console.log("created analyser");
-console.log(Q);
 G.connect(Q);
-n({
-type:"fft",fft:[]}
-)}
+Q_before=M.createAnalyser();
+Q_before.fftSize=4096*2;
+Q_before.smoothingTimeConstant=.5;
+B.connect(Q_before);
+n({type:"fft",fft:[],fftBefore:[]})
+}
 }
 }
 ;
@@ -604,8 +603,10 @@ if(L){
 if(performance.now()-L>1e3){
 if(G&&Q){
 G.disconnect(Q);
+B.disconnect(Q_before);
 Q=null;
-console.log("disconnected analyser")}
+Q_before=null;
+}
 }
 }
 }

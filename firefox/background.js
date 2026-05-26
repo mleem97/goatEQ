@@ -22,7 +22,7 @@ if(o){console.log(e)}
 var M=null;
 var B=null;
 var G=null;
-var Q=null;
+var Q=null;var Q_before=null;
 var L=null;
 var V=[];
 var z=[20,40,80,160,320,640,1280,2560,5120,10240,20480];
