@@ -1,5 +1,6 @@
 {
-   "author": "marvin",
+   "author": "mleem97 / marvin lee meyer",
+   "homepage_url": "https://github.com/mleem97/goatEQ",
    "background": {
       "service_worker": "sw.js"
    },
