@@ -4,7 +4,7 @@ var _gaq = {
   }
 };
 function scope(){
-var J = "2.0.0";
+var J = "1.0.0";
 try { if (typeof chrome !== "undefined" && 'runtime' in chrome && 'getManifest' in chrome.runtime) { J = chrome.runtime.getManifest().version; } } catch(e) {}
 var e="11/22/2017";
 _gaq.push(["_setAccount","UA-64913318-2"]);
