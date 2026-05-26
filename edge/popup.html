@@ -6,7 +6,7 @@
 <script src="snap.svg-min.js"></script>
 <script src="popup.js"></script>
 </head>
-<body class="bg-goat-bg text-goat-accent select-none m-0 p-[10px] min-w-[400px]">
+<body class="bg-goat-bg text-goat-accent select-none m-0 p-[10px] min-w-[600px]">
   <span id="contactInfo" class="float-right mr-[5px] clear-both"></span>
   <h1 class="text-goat-accent px-4 py-3 text-2xl font-extrabold tracking-widest m-0 flex items-center gap-3"><img src="goateq_transsource.png" class="w-10 h-10" style="filter:brightness(0) invert(1)" alt="">goatEQ</h1>
   <div id="lt"></div>
@@ -86,21 +86,21 @@
       <div id="eqTabList"></div>
     </div>
   </div>
-  <div id="filterButtonsDiv" class="float-right mb-[10px] clear-both">
-    <input id="presetNameInput" type="text" placeholder="Preset Name" class="bg-goat-bg text-goat-accent border border-goat-accent rounded h-5 w-[75px] outline-none indent-1">
-    <button id="savePresetButton" class="bg-goat-bg text-goat-accent border border-goat-accent rounded ml-[5px] cursor-pointer outline-none">+ Save Preset</button>
-    <button id="deletePresetButton" class="bg-goat-bg text-goat-accent border border-goat-accent rounded ml-[5px] cursor-pointer outline-none">- Delete Preset</button>
-    <button id="resetFiltersButton" class="bg-goat-bg text-goat-accent border border-goat-accent rounded ml-[5px] cursor-pointer outline-none">Reset Filters</button>
-    <button id="exportPresetsButton" title="Export all saved presets to a file." class="bg-goat-bg text-goat-accent border border-goat-accent rounded ml-[5px] cursor-pointer outline-none">Export Presets</button>
-    <button id="importPresetsButton" title="Import presets from a file." class="bg-goat-bg text-goat-accent border border-goat-accent rounded ml-[5px] cursor-pointer outline-none">Import Presets</button>
+  <div id="filterButtonsDiv" class="flex flex-wrap gap-1 items-center mb-[10px] clear-both">
+    <input id="presetNameInput" type="text" placeholder="Preset Name" class="hidden bg-goat-bg text-goat-accent border border-goat-accent border-b-0 rounded-none h-5 w-[75px] outline-none indent-1">
+    <button id="savePresetButton" class="bottom-tab"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M17 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V7l-4-4zm-5 16a3 3 0 1 1 0-6 3 3 0 0 1 0 6zm2-10H5V5h9v4z"/></svg>Save Preset</button>
+    <button id="deletePresetButton" class="bottom-tab"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>Delete Preset</button>
+    <button id="resetFiltersButton" class="bottom-tab"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/></svg>Reset Filters</button>
+    <button id="exportPresetsButton" title="Export all saved presets to a file." class="bottom-tab"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>Export Presets</button>
+    <button id="importPresetsButton" title="Import presets from a file." class="bottom-tab"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 16h6v-6h4l-7-7-7 7h4zm-4 2h14v2H5z"/></svg>Import Presets</button>
     <input type="file" id="importPresetsFile">
   </div>
-  <div id="presetDiv" class="float-right mb-[10px] clear-both">
-    <button id="bassBoostButton" class="bg-goat-bg text-goat-accent border border-goat-accent rounded ml-[5px] mb-[5px] cursor-pointer outline-none">Bass Boost</button>
+  <div id="presetDiv" class="flex flex-wrap gap-1 items-center mb-[10px] clear-both">
+    <button id="bassBoostButton" class="bottom-tab"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M5 9v6h4l5 5V4L9 9H5zm11.5 3A4.5 4.5 0 0 0 14 8.5v7a4.49 4.49 0 0 0 2.5-3.5z"/></svg>Bass Boost</button>
     <span id="userPresetSpan" class="text-goat-accent ml-[5px]"></span>
   </div>
   <div id="eqThisTabDiv" class="clear-both text-center">
-    <button id="eqTabButton" class="center bg-goat-bg text-goat-accent border border-goat-accent rounded mx-auto my-2 block cursor-pointer outline-none">EQ Current Tab</button>
+    <button id="eqTabButton" class="bottom-tab"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M11 2h2v20h-2V2zm-4 6h2v12H7V8zm8 3h2v9h-2v-9zM3 12h2v7H3v-7zm14 3h2v4h-2v-4z"/></svg>EQ Current Tab</button>
   </div>
   <div id="requiresProDiv"></div>
   <a id="proPromo" href="#" target="_blank" class="fixed bottom-[8px] left-[8px] text-goat-accent text-xs">goatEQ &#127926; Gain Optimization & Audio Treatment</a>

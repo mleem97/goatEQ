@@ -317,20 +317,32 @@ return}
 b(stream,tab);
 E();
 });
-} else {
-navigator.mediaDevices.getUserMedia({audio:{
-mandatory:{chromeMediaSource:'tab'},
-optional:[{chromeMediaSourceId:tab.id}]}}).then(function(stream){
-b(stream,tab);E();
-}).catch(function(err){
-console.error("getUserMedia error:",err);
-});
-}
-} catch(err){console.error("capture error:",err)}
-});
-return true;
-}
-if(e.type=="eqTab"&&!e.on){
+          } else {
+            try {
+              navigator.mediaDevices.getUserMedia({audio:{mediaSource:"tab"}}).then(function(stream){
+                b(stream,tab);E();
+              }).catch(function(err){
+                console.error("getUserMedia error:",err);
+              });
+            } catch(err2) {
+              console.error("getUserMedia exception:",err2);
+            }
+            }
+          } catch(err){console.error("capture error:",err)}
+        });
+        return true;
+      }
+      if(e.type=="captureStream"&&e.stream){
+        chrome.tabs.query({active:true,currentWindow:true},function(tabs){
+          if(tabs.length>0){
+            T(e.stream,tabs[0],true);
+            o();
+            E();
+          }
+        });
+        return;
+      }
+      if(e.type=="eqTab"&&!e.on){
 j();
 return;
 }
@@ -367,6 +379,15 @@ chrome.runtime.onMessage.addListener($);
 try { if(typeof chrome !== "undefined" && 'tabCapture' in chrome && 'onStatusChanged' in chrome.tabCapture){
 chrome.tabCapture.onStatusChanged.addListener(x)} } catch(e) {}
 }
+window.captureTabStream = function(stream) {
+  chrome.tabs.query({active:true,currentWindow:true},function(tabs){
+    if(tabs.length>0){
+      T(stream,tabs[0],true);
+      o();
+      E();
+    }
+  });
+};
 }
 u();
 setInterval(function(){

@@ -46,25 +46,26 @@ r.classList.add("show");
 setTimeout(function(){
 r.classList.remove("show")}
 ,5e3)}
+var _selectedPreset=null;
 var i=document.getElementById("savePresetButton");
 i.onclick=function(){
 var e=n.value.trim();
 if(e!=""){
 chrome.runtime.sendMessage({
-type:"savePreset",preset:e}
-)}
+type:"savePreset",preset:e});
+n.value="";
+n.classList.add("hidden")}
 else{
-a("Type a name in the Preset Name box, then click Save Preset or press Enter.");
+n.classList.remove("hidden");
 n.focus()}
 }
 ;
 var o=document.getElementById("deletePresetButton");
 o.onclick=function(){
-var e=n.value.trim();
-if(e!=""){
+if(_selectedPreset){
 chrome.runtime.sendMessage({
-type:"deletePreset",preset:e}
-)}
+type:"deletePreset",preset:_selectedPreset});
+_selectedPreset=null}
 }
 ;
 n.onkeypress=function(e){
@@ -269,13 +270,15 @@ a<r.length;
 a++){
 (function(e){
 var t=document.createElement("button");
+t.className="bottom-tab";
 t.textContent=e;
 n.appendChild(t);
 t.onclick=function(){
 chrome.runtime.sendMessage({
 type:"preset",preset:e}
 );
-document.getElementById("presetNameInput").value=e}
+document.getElementById("presetNameInput").value=e;
+_selectedPreset=e}
 }
 )(r[a])}
 }

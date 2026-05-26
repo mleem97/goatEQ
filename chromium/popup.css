@@ -199,12 +199,6 @@
   .m-0 {
     margin: calc(var(--spacing) * 0);
   }
-  .mx-auto {
-    margin-inline: auto;
-  }
-  .my-2 {
-    margin-block: calc(var(--spacing) * 2);
-  }
   .mt-0 {
     margin-top: calc(var(--spacing) * 0);
   }
@@ -219,9 +213,6 @@
   }
   .mb-2 {
     margin-bottom: calc(var(--spacing) * 2);
-  }
-  .mb-\[5px\] {
-    margin-bottom: 5px;
   }
   .mb-\[10px\] {
     margin-bottom: 10px;
@@ -268,8 +259,8 @@
   .w-\[100px\] {
     width: 100px;
   }
-  .min-w-\[400px\] {
-    min-width: 400px;
+  .min-w-\[600px\] {
+    min-width: 600px;
   }
   .flex-1 {
     flex: 1;
@@ -286,6 +277,9 @@
   .flex-col {
     flex-direction: column;
   }
+  .flex-wrap {
+    flex-wrap: wrap;
+  }
   .items-center {
     align-items: center;
   }
@@ -298,8 +292,8 @@
   .overflow-y-auto {
     overflow-y: auto;
   }
-  .rounded {
-    border-radius: 0.25rem;
+  .rounded-none {
+    border-radius: 0;
   }
   .rounded-xl {
     border-radius: var(--radius-xl);
@@ -594,6 +588,33 @@
 }
 #importPresetsFile {
   display: none;
+}
+.bottom-tab {
+  border: 1px solid var(--color-goat-accent);
+  border-top: none;
+  border-radius: 0 0 0.5em 0.5em;
+  background: var(--color-goat-bg);
+  color: var(--color-goat-accent);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2em;
+  font-size: 0.75rem;
+  line-height: 1.4em;
+  height: 1.6em;
+  padding: 0 0.35em;
+  outline: none;
+  transition: background 0.15s;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+.bottom-tab:hover {
+  background: #3A3D44;
+}
+.bottom-tab svg {
+  width: 0.85em;
+  height: 0.85em;
+  flex-shrink: 0;
 }
 .filterDot {
   pointer-events: all;

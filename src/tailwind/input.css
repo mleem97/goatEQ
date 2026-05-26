@@ -141,6 +141,34 @@
   display: none;
 }
 
+.bottom-tab {
+  border: 1px solid var(--color-goat-accent);
+  border-top: none;
+  border-radius: 0 0 0.5em 0.5em;
+  background: var(--color-goat-bg);
+  color: var(--color-goat-accent);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2em;
+  font-size: 0.75rem;
+  line-height: 1.4em;
+  height: 1.6em;
+  padding: 0 0.35em;
+  outline: none;
+  transition: background 0.15s;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+.bottom-tab:hover {
+  background: #3A3D44;
+}
+.bottom-tab svg {
+  width: 0.85em;
+  height: 0.85em;
+  flex-shrink: 0;
+}
+
 .filterDot {
   pointer-events: all;
 }

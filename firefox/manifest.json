@@ -3,7 +3,7 @@
    "background": {
       "scripts": ["background.js"]
    },
-   "action": {
+   "browser_action": {
       "default_icon": "goateq128.png",
       "default_popup": "popup.html"
    },
@@ -16,9 +16,7 @@
          }
       }
    },
-   "content_security_policy": {
-      "extension_pages": "script-src 'self'; object-src 'self'"
-   },
+   "content_security_policy": "script-src 'self'; object-src 'self'",
    "description": "Gain Optimization & Audio Treatment for your browser. EQ any audio you find on the web, live!",
    "icons": {
       "128": "goateq128.png",
@@ -27,9 +25,9 @@
       "48": "goateq48.png",
       "64": "goateq64.png"
    },
-   "manifest_version": 3,
+   "manifest_version": 2,
    "name": "goatEQ: Gain Optimization & Audio Treatment",
-   "permissions": [ "activeTab", "tabs", "storage" ],
+   "permissions": [ "activeTab", "tabCapture", "tabs", "storage", "<all_urls>" ],
    "short_name": "goatEQ",
    "version": "1.0.0"
 }
