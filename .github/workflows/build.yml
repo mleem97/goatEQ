@@ -1,0 +1,123 @@
+name: Build Extensions
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build Extension Packages
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Read version from manifest
+        id: version
+        run: |
+          VERSION=$(jq -r '.version' manifest.json)
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "Building goatEQ v$VERSION"
+
+      - name: Build Chrome / Edge Extension (.zip)
+        run: |
+          mkdir -p dist
+          zip -r "dist/goatEQ-v${{ steps.version.outputs.version }}-chrome.zip" \
+            manifest.json \
+            sw.js \
+            bg.js \
+            popup.html \
+            popup.js \
+            popup.css \
+            offscreen.html \
+            snap.svg-min.js \
+            goateq16.png \
+            goateq32.png \
+            goateq48.png \
+            goateq64.png \
+            goateq128.png
+          echo "✅ Chrome/Edge package built"
+
+      - name: Build Firefox Extension (.xpi)
+        run: |
+          mkdir -p build-firefox
+
+          # Copy all extension files
+          cp manifest.json sw.js bg.js popup.html popup.js popup.css \
+             offscreen.html snap.svg-min.js \
+             goateq16.png goateq32.png goateq48.png goateq64.png goateq128.png \
+             build-firefox/
+
+          # Adapt manifest for Firefox
+          cd build-firefox
+          jq '
+            . + {
+              "browser_specific_settings": {
+                "gecko": {
+                  "id": "goateq@goateq.ext",
+                  "strict_min_version": "109.0"
+                }
+              }
+            }
+            | del(.key)
+            | del(.update_url)
+          ' manifest.json > manifest_ff.json
+          mv manifest_ff.json manifest.json
+
+          cd ..
+          cd build-firefox && zip -r "../dist/goatEQ-v${{ steps.version.outputs.version }}-firefox.xpi" . && cd ..
+          echo "✅ Firefox package built"
+
+      - name: Copy Chrome zip as Edge package
+        run: |
+          cp "dist/goatEQ-v${{ steps.version.outputs.version }}-chrome.zip" \
+             "dist/goatEQ-v${{ steps.version.outputs.version }}-edge.zip"
+          echo "✅ Edge package built (identical to Chrome)"
+
+      - name: List build artifacts
+        run: ls -lh dist/
+
+      - name: Upload Chrome artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: goatEQ-chrome
+          path: dist/*-chrome.zip
+
+      - name: Upload Firefox artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: goatEQ-firefox
+          path: dist/*-firefox.xpi
+
+      - name: Upload Edge artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: goatEQ-edge
+          path: dist/*-edge.zip
+
+      - name: Create GitHub Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          name: "goatEQ v${{ steps.version.outputs.version }}"
+          body: |
+            ## goatEQ v${{ steps.version.outputs.version }}
+            
+            **Gain Optimization & Audio Treatment** for your browser.
+            
+            ### Downloads
+            | Browser | File | Install |
+            |---------|------|---------|
+            | 🟢 Chrome | `goatEQ-*-chrome.zip` | Unzip → `chrome://extensions/` → Load unpacked |
+            | 🔵 Edge | `goatEQ-*-edge.zip` | Unzip → `edge://extensions/` → Load unpacked |
+            | 🟠 Firefox | `goatEQ-*-firefox.xpi` | Drag into Firefox or `about:addons` → Install from file |
+          files: dist/*
+          generate_release_notes: true
