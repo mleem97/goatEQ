@@ -19,7 +19,7 @@
 #mainDiv::before {
   content: '';
   position: absolute;
-  top: 1.625em;
+  top: 1.5em;
   left: 0;
   right: 0;
   border-bottom: 1px solid var(--color-goat-accent);

@@ -250,14 +250,14 @@
   .min-h-\[500px\] {
     min-height: 500px;
   }
-  .w-10 {
-    width: calc(var(--spacing) * 10);
-  }
   .w-\[75px\] {
     width: 75px;
   }
   .w-\[100px\] {
     width: 100px;
+  }
+  .w-auto {
+    width: auto;
   }
   .min-w-\[600px\] {
     min-width: 600px;
@@ -485,7 +485,7 @@
 #mainDiv::before {
   content: '';
   position: absolute;
-  top: 1.625em;
+  top: 1.5em;
   left: 0;
   right: 0;
   border-bottom: 1px solid var(--color-goat-accent);
@@ -661,6 +661,14 @@
 @media (prefers-color-scheme: dark) {
   .logo-dynamic {
     filter: brightness(0) invert(1);
+  }
+}
+@media (prefers-color-scheme: light) {
+  :root {
+    --color-goat-bg: #F0F2F5;
+    --color-goat-accent: #FF7F00;
+    --color-goat-purple: #704b91;
+    --color-goat-green: #1a8f53;
   }
 }
 @property --tw-rotate-x {
