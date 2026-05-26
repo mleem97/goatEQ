@@ -655,6 +655,14 @@
   color: var(--color-goat-accent);
   margin-left: 5px;
 }
+.logo-dynamic {
+  filter: brightness(0);
+}
+@media (prefers-color-scheme: dark) {
+  .logo-dynamic {
+    filter: brightness(0) invert(1);
+  }
+}
 @property --tw-rotate-x {
   syntax: "*";
   inherits: false;

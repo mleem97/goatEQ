@@ -214,3 +214,21 @@
   color: var(--color-goat-accent);
   margin-left: 5px;
 }
+
+.logo-dynamic {
+  filter: brightness(0);
+}
+@media (prefers-color-scheme: dark) {
+  .logo-dynamic {
+    filter: brightness(0) invert(1);
+  }
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    --color-goat-bg: #F0F2F5;
+    --color-goat-accent: #FF7F00;
+    --color-goat-purple: #704b91;
+    --color-goat-green: #1a8f53;
+  }
+}
