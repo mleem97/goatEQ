@@ -1,1 +1,1 @@
-../../popup.js
+../popup.js

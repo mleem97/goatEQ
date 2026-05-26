@@ -1,54 +1,47 @@
-# 🐐 goatEQ: Gain Optimization & Audio Treatment
+# goatEQ: Gain Optimization & Audio Treatment
 
 > **Get Greatest Of All Time audio quality directly in your browser.** An advanced real-time equalizer and audio enhancement toolkit rebuilt from the ground up for modern browsers.
 
 ---
 
-## ✨ Features
+## Features
 
-- **🎚️ 11-Band Graphic Equalizer:** Symmetrical parametric control over the entire frequency spectrum.
-- **📈 Spectrum Visualizer:** Real-time FFT analysis of whatever tab you're listening to.
-- **💾 Preset Library:** Unlimited presets storage. Create, save, and manage custom filter states.
-- **📥 Import / Export:** Easily backup your custom presets to a JSON file or share them with others.
-- **🔥 Deep Bass Boost:** Dedicated low-end harmonic enhancer.
-- **🛡️ Full Privacy Compliance:** Zero external trackers or injected code scripts. Built 100% offline-compliant with Manifest V3.
-- **🔌 Multi-Browser Support:** Optimized natively for Chrome, Edge, and Firefox.
+- **11-Band Graphic Equalizer:** Symmetrical parametric control over the entire frequency spectrum.
+- **Spectrum Visualizer:** Real-time FFT analysis of whatever tab you're listening to.
+- **Preset Library:** Unlimited presets storage. Create, save, and manage custom filter states.
+- **Import / Export:** Easily backup your custom presets to a JSON file or share them with others.
+- **Deep Bass Boost:** Dedicated low-end harmonic enhancer.
+- **Full Privacy Compliance:** Zero external trackers or injected code scripts. Built 100% offline-compliant with Manifest V3.
+- **Multi-Browser Support:** Optimized natively for Chrome, Edge, and Firefox.
 
 ---
 
-## 🏛️ Architecture (Manifest V3)
+## Architecture (Manifest V3)
 
 Under the hood, **goatEQ** uses a state-of-the-art coordination pipeline that respects the security constraints of Manifest V3 without losing any desktop-audio capabilities.
 
-```mermaid
-sequenceDiagram
-    participant Popup as 🎚️ UI (popup.html)
-    participant Worker as ⚙️ Service Worker (sw.js)
-    participant Offscreen as 🎵 Audio Processor (offscreen.html)
-
-    Popup->>Worker: sendMessage({ type: 'initPopup' })
-    Note over Worker: Wakes up and checks if<br/>Audio Context is running
-    alt Offscreen is Active
-        Worker->>Offscreen: sendMessage({ type: 'ping' })
-        Offscreen-->>Worker: response({ alive: true })
-    else Offscreen is Dead / Closed
-        Worker->>Worker: Spawn Offscreen Document
-        Worker->>Offscreen: Load bg.js (Web Audio Sandbox)
-    end
-    Worker-->>Popup: response({ ready: true })
-    Note over Popup: Renders Slider & Spectrum Visuals
+### Chrome / Edge
 ```
-
-### Technical details:
+Popup ---> Service Worker (sw.js) ---> Offscreen Engine (bg.js) ---> Web Audio
+```
 - **Service Worker (`sw.js`):** Orchestrator that intercepts active tabs, manages lifetimes, and bridges communication.
 - **Offscreen Engine (`bg.js`):** Sandboxed environment that hosts the high-performance Web Audio API, handles user filters, and processes incoming real-time tab streams.
-- **Safe Guards:** Restricts standard browser API bindings using property probes (`'in'` operator) and offline stubs, avoiding runtime TypeError flags in restricted sandbox scopes.
+
+### Firefox
+```
+Popup ---> Background Page (background.js) ---> Web Audio
+```
+- Firefox uses a persistent **background script** instead of a service worker + offscreen document, running Web Audio directly in the background page.
+- No `service_worker`, no `offscreen` API — Firefox does not support these in MV3.
+
+### Safe Guards
+Restricts standard browser API bindings using property probes (`'in'` operator) and offline stubs, avoiding runtime TypeError flags in restricted sandbox scopes.
 
 ---
 
-## 🚀 Installation & Sideloading
+## Installation & Sideloading
 
-### 🟢 Google Chrome & 🔵 Microsoft Edge
+### Google Chrome & Microsoft Edge
 1. Download `goatEQ-v*-chrome.zip` (or `*-edge.zip`) from the **Releases** tab and extract it.
 2. Open Chrome/Edge and head to:
    - Chrome: `chrome://extensions/`
@@ -58,7 +51,7 @@ sequenceDiagram
 5. Select the extracted folder.
 6. Open your favorite streaming page (e.g. YouTube, Spotify), click the **goatEQ** icon in the toolbar, select **EQ Current Tab** and dial in your sound!
 
-### 🟠 Mozilla Firefox
+### Mozilla Firefox
 1. Download `goatEQ-v*-firefox.xpi` from the **Releases** tab.
 2. Open Firefox and navigate to `about:addons`.
 3. Click the gear icon next to "Manage Your Extension" and select **Install Add-on From File...**
@@ -67,31 +60,33 @@ sequenceDiagram
 
 ---
 
-## 🛠️ Development & Packaging
+## Development & Packaging
 
-If you'd like to bundle this repository locally:
+Each browser has its own source directory with browser-specific manifests and scripts:
+
+- `chromium/` — Chrome build (`sw.js` + `bg.js` + `offscreen.html`)
+- `edge/` — Edge build (identical to Chrome)
+- `firefox/` — Firefox build (`background.js` with persistent page)
+
+Build with:
 ```bash
-# Package Chrome / Edge extension
-zip -r goatEQ-chrome.zip manifest.json sw.js bg.js popup.html popup.js popup.css offscreen.html snap.svg-min.js goateq*.png
-
-# Build Firefox extension (requires jq to adjust Manifest keys)
-mkdir -p build-firefox
-cp manifest.json sw.js bg.js popup.html popup.js popup.css offscreen.html snap.svg-min.js goateq*.png build-firefox/
-cd build-firefox
-jq '. + {"browser_specific_settings": {"gecko": {"id": "goateq@goateq.ext", "strict_min_version": "109.0"}}} | del(.key) | del(.update_url)' manifest.json > manifest_ff.json
-mv manifest_ff.json manifest.json
-zip -r ../goatEQ-firefox.xpi .
+# Build all packages
+./chromium/build.sh   # -> dist/goatEQ-v*-chrome.crx
+./edge/build.sh       # -> dist/goatEQ-v*-edge.crx
+./firefox/build.sh    # -> dist/goatEQ-v*-firefox.xpi
 ```
+
+For testing in Firefox, load `firefox/test/manifest.json` via `about:debugging#/runtime/this-firefox`.
 
 ---
 
-## 👥 Contributors
+## Contributors
 
 - **Marvin Lee M. (mleem97)** - Lead Developer & Maintainer. Upgraded the toolkit to Manifest V3, stabilized the audio offscreen sandbox, and created the modern *goatEQ* branding.
 
 ---
 
-## 💖 Sponsoring & Support
+## Sponsoring & Support
 
 If **goatEQ** makes your web audio sound greatest of all time, consider supporting the development!
 
@@ -103,6 +98,6 @@ If **goatEQ** makes your web audio sound greatest of all time, consider supporti
 
 ---
 
-## 📄 License
+## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.

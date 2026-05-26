@@ -1,1 +1,1 @@
-../../snap.svg-min.js
+../snap.svg-min.js

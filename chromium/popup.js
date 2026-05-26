@@ -143,12 +143,18 @@ var g=document.getElementById(m);
 if(g){
 g.click()}
 }
-var fsLink = document.getElementById("fullscreen-link");
-if (fsLink) {
-fsLink.href = chrome.runtime.getURL("popup.html");
+var fwBtn = document.getElementById("fullwindowBtn");
+if (fwBtn) {
+fwBtn.onclick = function() { window.open(chrome.runtime.getURL("popup.html"), "_blank"); }
 }
 if(window.innerWidth&&window.innerWidth>1e3){
-document.getElementById("fullscreen-link").style.display="none"}
+if(fwBtn) fwBtn.style.display="none"}
+document.querySelectorAll(".guide-topic").forEach(function(btn){
+btn.addEventListener("click",function(){
+document.querySelectorAll(".guide-topic").forEach(function(b){b.classList.remove("active")});
+document.querySelectorAll(".guide-content").forEach(function(c){c.classList.add("hidden")});
+this.classList.add("active");
+document.getElementById("guide-"+this.getAttribute("data-topic")).classList.remove("hidden")})})
 }
 );
 function n(){
@@ -330,6 +336,10 @@ K(e.streams)}
 function K(e){
 var t=document.getElementById("eqTabList");
 t.innerHTML="";
+var fo=document.getElementById("folderIconOutline"),fs=document.getElementById("folderIconSolid");
+if(fo&&fs){
+if(e.length>0){fo.classList.add("hidden");fs.classList.remove("hidden")}
+else{fo.classList.remove("hidden");fs.classList.add("hidden")}}
 if(e.length==0){
 t.textContent="No tabs active. Click 'EQ This Tab' below to activate this tab.";
 return}
@@ -382,6 +392,9 @@ var I=null;
 var C=null;
 var S=null;
 var x=null;
+var _circleDotPath="M11 12a1 1 0 1 0 2 0a1 1 0 1 0 -2 0M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0";
+var _circleDotFilledPath="M17 3.34a10 10 0 1 1 -14.995 8.984l-.005 -.324l.005 -.324a10 10 0 0 1 14.995 -8.336zm-5 6.66a2 2 0 0 0 -1.977 1.697l-.018 .154l-.005 .149l.005 .15a2 2 0 1 0 1.995 -2.15z";
+var _dotScale=0.6;
 function $(e,t){
 if(I){
 I.clear()}
@@ -389,11 +402,11 @@ if(x){
 x.clear()}
 I=Snap("#eqSvg");
 I.attr({
-fill:q,height:B,width:T}
+fill:q}
 );
 x=Snap("#gainSvg");
 x.attr({
-fill:q,height:B,width:g}
+fill:q}
 );
 var n={
 fill:m,stroke:m}
@@ -431,9 +444,16 @@ if(u.t=="highshelf"||u.t=="lowshelf"){
 v={
 fill:b,stroke:b}
 }
-var d=I.circle(l,f,4).attr(v).addClass("filterDot");
-d.drag(ce(u,c,I),Q,he(u,c));
-d.dblclick(ee(u,c))}
+  var dotColor=v.fill||v.stroke||m;
+  var d=I.path(_circleDotPath).attr({
+    fill:"none",
+    stroke:dotColor,
+    strokeWidth:2,
+    transform:"translate("+l+","+f+") scale("+_dotScale+") translate(-12,-12)"
+  }).addClass("filterDot");
+  d.data("origColor",dotColor);
+  d.drag(ce(u,c,I),Q,he(u,c));
+  d.dblclick(ee(u,c))}
 }
 function ee(e,t){
 return function(){
@@ -642,7 +662,7 @@ o.y=r;
 o.gain=f(r);
 o.frequency=l(n);
 this.attr({
-transform:this.data("origTransform")+(this.data("origTransform")?"T":"t")+[e,t]}
+transform:this.data("origTransform")+"t"+[e,t]}
 )}
 d(c,o,s);
 ue(o,s)}
@@ -665,15 +685,21 @@ type:"resetFilter",index:e}
 )}
 var Q=function(){
 this.data("origTransform",this.transform().local);
-this.attr({
-fill:"black"}
-)}
-;
+var oc=this.data("origColor");
+if(oc){
+this.attr({d:_circleDotFilledPath,fill:oc,stroke:"none"})
+} else {
+this.attr({fill:"black"})
+}
+};
 function he(e,t){
 return function(){
-this.attr({
-fill:q}
-);
+var oc=this.data("origColor");
+if(oc){
+this.attr({d:_circleDotPath,fill:"none",stroke:oc,strokeWidth:2})
+} else {
+this.attr({fill:q})
+}
 chrome.runtime.sendMessage({
 type:"filterUpdated",filterType:e.t,frequency:e.frequency,gain:e.gain,q:e.q}
 );

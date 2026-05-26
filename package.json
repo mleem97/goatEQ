@@ -2,8 +2,14 @@
   "name": "goateq",
   "version": "1.0.0",
   "description": "> **Get Greatest Of All Time audio quality directly in your browser.** An advanced real-time equalizer and audio enhancement toolkit rebuilt from the ground up for modern browsers.",
-  "main": "bg.js",
   "scripts": {
+    "build:css": "tailwindcss -i src/tailwind/input.css -o chromium/popup.css && cp chromium/popup.css edge/popup.css && cp chromium/popup.css firefox/popup.css",
+    "build:firefox": "bash firefox/build.sh",
+    "sign:firefox": "bash firefox/sign.sh",
+    "build:chrome": "bash chromium/build.sh",
+    "build:edge": "bash edge/build.sh",
+    "build:all": "npm run build:css && npm run build:chrome && npm run build:edge && npm run build:firefox",
+    "sign:all": "npm run build:css && npm run sign:firefox",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -17,7 +23,11 @@
     "url": "https://github.com/mleem97/goatEQ/issues"
   },
   "homepage": "https://github.com/mleem97/goatEQ#readme",
-  "dependencies": {
-    "crx3": "^2.0.0"
+  "devDependencies": {
+    "@tailwindcss/cli": "^4.3.0",
+    "crx3": "^2.0.0",
+    "react-icons": "^5.6.0",
+    "tailwindcss": "^4.3.0",
+    "web-ext": "^10.2.0"
   }
 }

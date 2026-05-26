@@ -27,14 +27,17 @@ jobs:
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           echo "Building goatEQ v$VERSION"
 
+      - name: Install dependencies and build CSS
+        run: |
+          npm ci
+          npm run build:css
+
       - name: Build Chromium Extension (.zip)
         run: |
           VERSION=${{ steps.version.outputs.version }}
           mkdir -p dist
           tmpdir=$(mktemp -d)
-          cp chromium/manifest.json sw.js bg.js popup.html popup.js popup.css \
-             offscreen.html snap.svg-min.js \
-             goateq16.png goateq32.png goateq48.png goateq64.png goateq128.png "$tmpdir/"
+          cp chromium/*.json chromium/*.js chromium/*.html chromium/*.css chromium/*.png "$tmpdir/" 2>/dev/null
           cd "$tmpdir" && zip -r "$GITHUB_WORKSPACE/dist/goatEQ-v${VERSION}-chrome.zip" . && cd "$GITHUB_WORKSPACE"
           rm -rf "$tmpdir"
 
@@ -43,9 +46,7 @@ jobs:
           VERSION=${{ steps.version.outputs.version }}
           mkdir -p dist
           tmpdir=$(mktemp -d)
-          cp edge/manifest.json sw.js bg.js popup.html popup.js popup.css \
-             offscreen.html snap.svg-min.js \
-             goateq16.png goateq32.png goateq48.png goateq64.png goateq128.png "$tmpdir/"
+          cp edge/*.json edge/*.js edge/*.html edge/*.css edge/*.png "$tmpdir/" 2>/dev/null
           cd "$tmpdir" && zip -r "$GITHUB_WORKSPACE/dist/goatEQ-v${VERSION}-edge.zip" . && cd "$GITHUB_WORKSPACE"
           rm -rf "$tmpdir"
 
@@ -54,10 +55,7 @@ jobs:
           VERSION=${{ steps.version.outputs.version }}
           mkdir -p dist
           tmpdir=$(mktemp -d)
-          cp firefox/manifest.json firefox/background.js \
-             popup.html popup.js popup.css \
-             snap.svg-min.js \
-             goateq16.png goateq32.png goateq48.png goateq64.png goateq128.png "$tmpdir/"
+          cp firefox/*.json firefox/*.js firefox/*.html firefox/*.css firefox/*.png "$tmpdir/" 2>/dev/null
           cd "$tmpdir" && zip -r "$GITHUB_WORKSPACE/dist/goatEQ-v${VERSION}-firefox.xpi" . && cd "$GITHUB_WORKSPACE"
           rm -rf "$tmpdir"
 

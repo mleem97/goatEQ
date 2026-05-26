@@ -4,9 +4,7 @@ cd "$(dirname "$0")/.."
 VERSION=$(jq -r '.version' edge/manifest.json)
 mkdir -p dist
 tmpdir=$(mktemp -d)
-cp edge/manifest.json sw.js bg.js popup.html popup.js popup.css \
-   offscreen.html snap.svg-min.js \
-   goateq16.png goateq32.png goateq48.png goateq64.png goateq128.png "$tmpdir/"
+cp edge/*.json edge/*.js edge/*.html edge/*.css edge/*.png "$tmpdir/" 2>/dev/null
 node node_modules/crx3/bin/crx3.js \
   -o "dist/goatEQ-v${VERSION}-edge.crx" \
   -p ~/.ssh/browseraddons/goatEQ.pem \

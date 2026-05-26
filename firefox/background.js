@@ -292,6 +292,10 @@ delete n}
 ee(function(e){t("goatEQ_Presets.json",JSON.stringify(e,null,2))})}
 
 $=function(e,t,n){
+if(e.type=="initPopup"){
+n({ready:true});
+return;
+}
 if(e.type=="getActiveTab"){
 chrome.tabs.query({active:true,currentWindow:true},function(tabs){n({tab:tabs[0]||null})});
 return true;
