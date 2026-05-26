@@ -12,8 +12,7 @@
          "id": "goateq@goateq.ext",
          "strict_min_version": "109.0",
          "data_collection_permissions": {
-            "description": "goatEQ uses anonymized usage data to improve the extension. No personal data is collected.",
-            "opt_out": true
+            "required": ["none"]
          }
       }
    },
