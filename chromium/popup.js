@@ -122,8 +122,8 @@ var v=["tab-1","tab-2","tab-3"];
 for(var d=0;
 d<v.length;
 d++){
-var h=v[d];
-document.getElementById(h).addEventListener("change",function(e){
+var tabId=v[d];
+document.getElementById(tabId).addEventListener("change",function(e){
 return function(){
 if(this.checked){
 localStorage["last-tab"]=e}
