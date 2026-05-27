@@ -109,7 +109,7 @@ For testing in Firefox, load `firefox/test/manifest.json` via `about:debugging#/
 If **goatEQ** makes your web audio sound greatest of all time, consider supporting the development!
 
 - **GitHub Sponsors:** [Sponsor @mleem97](https://github.com/sponsors/mleem97)
-- **Buy Me A Coffee:** [buymeacoffee.com/mleem97](https://www.buymeacoffee.com/mleem97)
+- **Buy Me A Coffee:** [buymeacoffee.com/marvinleedj](https://www.buymeacoffee.com/marvinleedj)
 - **Ko-fi:** [ko-fi.com/mleem](https://ko-fi.com/mleem)
 - **PayPal:** [paypal.me/mleem97](https://paypal.me/mleem97)
 - **Revolut:** [revolut.me/animusfound](https://revolut.me/animusfound)
