@@ -357,10 +357,10 @@ t.appendChild(i);
 return t}
 function Y(e){
 return Math.log(e)/Math.log(2)}
-var m=getComputedStyle(document.body).getPropertyValue("--color-goat-accent").trim()||"#FF7F00";
-var q=getComputedStyle(document.body).getPropertyValue("--color-goat-bg").trim()||"#2A2D34";
-var b=getComputedStyle(document.body).getPropertyValue("--color-goat-purple").trim()||"#9573A8";
-var w=getComputedStyle(document.body).getPropertyValue("--color-goat-green").trim()||"#CDF7E1";
+var m=getComputedStyle(document.documentElement).getPropertyValue("--color-goat-accent").trim()||"#FF7F00";
+var q=getComputedStyle(document.documentElement).getPropertyValue("--color-goat-bg").trim()||"#2A2D34";
+var b=getComputedStyle(document.documentElement).getPropertyValue("--color-goat-purple").trim()||"#9573A8";
+var w=getComputedStyle(document.documentElement).getPropertyValue("--color-goat-green").trim()||"#CDF7E1";
 var T=600;
 var B=300;
 var g=30;
