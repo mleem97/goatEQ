@@ -23,7 +23,7 @@ async function ensureOffscreen() {
             try {
                 await chrome.offscreen.createDocument({
                     url: 'offscreen.html',
-                    reasons: ['USER_MEDIA', 'LOCAL_STORAGE'],
+                    reasons: ['USER_MEDIA', 'AUDIO_PLAYBACK'],
                     justification: 'EQ tab audio and access user presets',
                 });
                 console.log("Offscreen document created successfully.");

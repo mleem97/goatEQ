@@ -4,6 +4,12 @@
 
 ---
 
+## About this Project
+
+**goatEQ** is a modernized fork of the original "EARS: Bass Boost, EQ Any Audio!" extension. The primary goal of this fork is to fully rewrite and migrate the architecture to **Manifest V3**, ensuring that this beloved audio tool remains fully functional, secure, and compatible with modern versions of Google Chrome and other Chromium-based browsers, while giving it a fresh, responsive UI.
+
+---
+
 ## Features
 
 - **11-Band Graphic Equalizer:** Symmetrical parametric control over the entire frequency spectrum.
@@ -12,7 +18,7 @@
 - **Import / Export:** Easily backup your custom presets to a JSON file or share them with others.
 - **Deep Bass Boost:** Dedicated low-end harmonic enhancer.
 - **Full Privacy Compliance:** Zero external trackers or injected code scripts. Built 100% offline-compliant with Manifest V3.
-- **Multi-Browser Support:** Optimized natively for Chrome, Edge, and Firefox.
+- **Multi-Browser Support:** Optimized natively for Chrome, Edge, Brave, and all Chromium-based browsers, plus Firefox.
 
 ---
 
@@ -20,16 +26,28 @@
 
 Under the hood, **goatEQ** uses a state-of-the-art coordination pipeline that respects the security constraints of Manifest V3 without losing any desktop-audio capabilities.
 
-### Chrome / Edge
-```
-Popup ---> Service Worker (sw.js) ---> Offscreen Engine (bg.js) ---> Web Audio
+### Chrome / Edge / Brave (Chromium)
+```mermaid
+graph LR
+    A[Popup] --> B[Service Worker<br>sw.js]
+    B --> C[Offscreen Engine<br>bg.js]
+    C --> D[Web Audio API]
+    style A fill:#FF7F00,color:#fff,stroke:#333,stroke-width:2px
+    style B fill:#2A2D34,color:#fff,stroke:#FF7F00,stroke-width:2px
+    style C fill:#2A2D34,color:#fff,stroke:#FF7F00,stroke-width:2px
+    style D fill:#9573A8,color:#fff,stroke:#333,stroke-width:2px
 ```
 - **Service Worker (`sw.js`):** Orchestrator that intercepts active tabs, manages lifetimes, and bridges communication.
 - **Offscreen Engine (`bg.js`):** Sandboxed environment that hosts the high-performance Web Audio API, handles user filters, and processes incoming real-time tab streams.
 
 ### Firefox
-```
-Popup ---> Background Page (background.js) ---> Web Audio
+```mermaid
+graph LR
+    A[Popup] --> B[Background Page<br>background.js]
+    B --> C[Web Audio API]
+    style A fill:#FF7F00,color:#fff,stroke:#333,stroke-width:2px
+    style B fill:#2A2D34,color:#fff,stroke:#FF7F00,stroke-width:2px
+    style C fill:#9573A8,color:#fff,stroke:#333,stroke-width:2px
 ```
 - Firefox uses a persistent **background script** instead of a service worker + offscreen document, running Web Audio directly in the background page.
 - No `service_worker`, no `offscreen` API — Firefox does not support these in MV3.
@@ -41,18 +59,19 @@ Restricts standard browser API bindings using property probes (`'in'` operator) 
 
 ## Installation & Sideloading
 
-### Google Chrome & Microsoft Edge
-1. Download `goatEQ-v*-chrome.zip` (or `*-edge.zip`) from the **Releases** tab and extract it.
-2. Open Chrome/Edge and head to:
+### Google Chrome, Microsoft Edge & Brave (all Chromium browsers)
+1. Download `goatEQ-chrome.zip` from the **Releases** tab and extract it.
+2. Open your browser's extensions page:
    - Chrome: `chrome://extensions/`
    - Edge: `edge://extensions/`
+   - Brave: `brave://extensions/`
 3. Toggle the **Developer mode** switch in the top right.
 4. Click **Load unpacked** in the top left.
 5. Select the extracted folder.
 6. Open your favorite streaming page (e.g. YouTube, Spotify), click the **goatEQ** icon in the toolbar, select **EQ Current Tab** and dial in your sound!
 
 ### Mozilla Firefox
-1. Download `goatEQ-v*-firefox.xpi` from the **Releases** tab.
+1. Download `goatEQ-firefox.xpi` from the **Releases** tab.
 2. Open Firefox and navigate to `about:addons`.
 3. Click the gear icon next to "Manage Your Extension" and select **Install Add-on From File...**
 4. Select the `.xpi` file you downloaded.
@@ -64,16 +83,14 @@ Restricts standard browser API bindings using property probes (`'in'` operator) 
 
 Each browser has its own source directory with browser-specific manifests and scripts:
 
-- `chromium/` — Chrome build (`sw.js` + `bg.js` + `offscreen.html`)
-- `edge/` — Edge build (identical to Chrome)
+- `chromium/` — Chrome, Edge & Brave build (`sw.js` + `bg.js` + `offscreen.html`)
 - `firefox/` — Firefox build (`background.js` with persistent page)
 
 Build with:
 ```bash
 # Build all packages
-./chromium/build.sh   # -> dist/goatEQ-v*-chrome.crx
-./edge/build.sh       # -> dist/goatEQ-v*-edge.crx
-./firefox/build.sh    # -> dist/goatEQ-v*-firefox.xpi
+./chromium/build.sh   # -> dist/goatEQ-chrome.crx
+./firefox/build.sh    # -> dist/goatEQ-firefox.xpi
 ```
 
 For testing in Firefox, load `firefox/test/manifest.json` via `about:debugging#/runtime/this-firefox`.
@@ -91,7 +108,7 @@ For testing in Firefox, load `firefox/test/manifest.json` via `about:debugging#/
 If **goatEQ** makes your web audio sound greatest of all time, consider supporting the development!
 
 - **GitHub Sponsors:** [Sponsor @mleem97](https://github.com/sponsors/mleem97)
-- **Buy Me A Coffee:** [buymeacoffee.com/mleem97](https://www.buymeacoffee.com/mleem97)
+- **Buy Me A Coffee:** [buymeacoffee.com/marvinleedj](https://www.buymeacoffee.com/marvinleedj)
 - **Ko-fi:** [ko-fi.com/mleem](https://ko-fi.com/mleem)
 - **PayPal:** [paypal.me/mleem97](https://paypal.me/mleem97)
 - **Revolut:** [revolut.me/animusfound](https://revolut.me/animusfound)

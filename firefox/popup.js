@@ -122,8 +122,8 @@ var v=["tab-1","tab-2","tab-3"];
 for(var d=0;
 d<v.length;
 d++){
-var h=v[d];
-document.getElementById(h).addEventListener("change",function(e){
+var tabId=v[d];
+document.getElementById(tabId).addEventListener("change",function(e){
 return function(){
 if(this.checked){
 localStorage["last-tab"]=e}
@@ -357,10 +357,10 @@ t.appendChild(i);
 return t}
 function Y(e){
 return Math.log(e)/Math.log(2)}
-var m=getComputedStyle(document.body).getPropertyValue("--color-goat-accent").trim()||"#FF7F00";
-var q=getComputedStyle(document.body).getPropertyValue("--color-goat-bg").trim()||"#2A2D34";
-var b=getComputedStyle(document.body).getPropertyValue("--color-goat-purple").trim()||"#9573A8";
-var w=getComputedStyle(document.body).getPropertyValue("--color-goat-green").trim()||"#CDF7E1";
+var m="#FF7F00";
+var q="#2A2D34";
+var b="#9573A8";
+var w="#CDF7E1";
 var T=600;
 var B=300;
 var g=30;
