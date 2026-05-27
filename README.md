@@ -4,6 +4,12 @@
 
 ---
 
+## About this Project
+
+**goatEQ** is a modernized fork of the original "EARS: Bass Boost, EQ Any Audio!" extension. The primary goal of this fork is to fully rewrite and migrate the architecture to **Manifest V3**, ensuring that this beloved audio tool remains fully functional, secure, and compatible with modern versions of Google Chrome and other Chromium-based browsers, while giving it a fresh, responsive UI.
+
+---
+
 ## Features
 
 - **11-Band Graphic Equalizer:** Symmetrical parametric control over the entire frequency spectrum.
@@ -21,15 +27,27 @@
 Under the hood, **goatEQ** uses a state-of-the-art coordination pipeline that respects the security constraints of Manifest V3 without losing any desktop-audio capabilities.
 
 ### Chrome / Edge
-```
-Popup ---> Service Worker (sw.js) ---> Offscreen Engine (bg.js) ---> Web Audio
+```mermaid
+graph LR
+    A[Popup] --> B[Service Worker<br>sw.js]
+    B --> C[Offscreen Engine<br>bg.js]
+    C --> D[Web Audio API]
+    style A fill:#FF7F00,color:#fff,stroke:#333,stroke-width:2px
+    style B fill:#2A2D34,color:#fff,stroke:#FF7F00,stroke-width:2px
+    style C fill:#2A2D34,color:#fff,stroke:#FF7F00,stroke-width:2px
+    style D fill:#9573A8,color:#fff,stroke:#333,stroke-width:2px
 ```
 - **Service Worker (`sw.js`):** Orchestrator that intercepts active tabs, manages lifetimes, and bridges communication.
 - **Offscreen Engine (`bg.js`):** Sandboxed environment that hosts the high-performance Web Audio API, handles user filters, and processes incoming real-time tab streams.
 
 ### Firefox
-```
-Popup ---> Background Page (background.js) ---> Web Audio
+```mermaid
+graph LR
+    A[Popup] --> B[Background Page<br>background.js]
+    B --> C[Web Audio API]
+    style A fill:#FF7F00,color:#fff,stroke:#333,stroke-width:2px
+    style B fill:#2A2D34,color:#fff,stroke:#FF7F00,stroke-width:2px
+    style C fill:#9573A8,color:#fff,stroke:#333,stroke-width:2px
 ```
 - Firefox uses a persistent **background script** instead of a service worker + offscreen document, running Web Audio directly in the background page.
 - No `service_worker`, no `offscreen` API — Firefox does not support these in MV3.

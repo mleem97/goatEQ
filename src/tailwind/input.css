@@ -108,12 +108,12 @@
 }
 #eqSvg {
   flex: 1;
-  height: auto;
+  height: 100%;
   min-width: 0;
 }
 #gainSvg {
   width: 30px;
-  height: auto;
+  height: 100%;
   flex-shrink: 0;
 }
 

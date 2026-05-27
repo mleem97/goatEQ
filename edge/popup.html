@@ -6,7 +6,7 @@
 <script src="snap.svg-min.js"></script>
 <script src="popup.js"></script>
 </head>
-<body class="bg-goat-bg text-goat-accent select-none m-0 p-[10px] min-w-[600px]">
+<body class="bg-goat-bg text-goat-accent select-none m-0 p-[10px] min-w-[660px]">
   <span id="contactInfo" class="float-right mr-[5px] clear-both"></span>
   <h1 class="text-goat-accent px-4 py-3 text-2xl font-extrabold tracking-widest m-0 flex items-center gap-3"><img src="goateq_transsource.png" class="h-10 w-auto logo-dynamic" alt="">goatEQ</h1>
   <div id="lt"></div>
@@ -26,7 +26,7 @@
     </label>
     <button id="vizButton" class="on float-right mt-0 mr-[2px] flex items-center gap-1 px-2.5 text-xs leading-[1.5em] h-[1.5em] border border-goat-accent border-b-0 rounded-t-[0.5em] rounded-b-none bg-goat-bg text-goat-accent [&.on]:bg-goat-accent [&.on]:text-goat-bg cursor-pointer outline-none transition-colors duration-150" title="Toggle Spectrum Visualizer"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="currentColor"><path d="M11 9h2v6h-2zm4-3h2v12h-2zM7 4h2v16H7zm12 7h2v2h-2zM3 10h2v4H3z"/></svg><span>Spectral</span></button>
     <button id="fullwindowBtn" class="float-right mt-0 mr-[2px] flex items-center gap-1 px-2 text-xs leading-[1.5em] h-[1.5em] border border-goat-accent border-b-0 rounded-t-[0.5em] rounded-b-none bg-goat-bg text-goat-accent cursor-pointer outline-none hover:bg-[#3A3D44] transition-colors duration-150" title="Open in new tab"><svg viewBox="0 0 16 16" width="1em" height="1em" fill="currentColor"><path d="M3 1v12h12v-12h-12zM14 12h-10v-10h10v10zM2 14v-10.5l-1-1v12.5h12.5l-1-1h-10.5z"/><path d="M5.5 4l2.5 2.5-3 3 1.5 1.5 3-3 2.5 2.5v-6.5z"/></svg></button>
-    <div id="eqDiv">
+    <div id="eqDiv" class="flex">
       <svg id="gainSvg" viewBox="0 0 30 300"></svg>
       <svg id="eqSvg" viewBox="0 0 600 300"></svg>
     </div>
