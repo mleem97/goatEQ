@@ -6,8 +6,8 @@ mkdir -p dist
 tmpdir=$(mktemp -d)
 cp chromium/*.json chromium/*.js chromium/*.html chromium/*.css chromium/*.png "$tmpdir/" 2>/dev/null
 node node_modules/crx3/bin/crx3.js \
-  -o "dist/goatEQ-v${VERSION}-chrome.crx" \
+  -o "dist/goatEQ-chrome.crx" \
   -p ~/.ssh/browseraddons/goatEQ.pem \
   "$tmpdir"
 rm -rf "$tmpdir"
-echo "Chrome package built: dist/goatEQ-v${VERSION}-chrome.crx"
+echo "Chrome package built: dist/goatEQ-chrome.crx"

@@ -60,7 +60,7 @@ Restricts standard browser API bindings using property probes (`'in'` operator) 
 ## Installation & Sideloading
 
 ### Google Chrome & Microsoft Edge
-1. Download `goatEQ-v*-chrome.zip` (or `*-edge.zip`) from the **Releases** tab and extract it.
+1. Download `goatEQ-chrome.zip` (or `goatEQ-edge.zip`) from the **Releases** tab and extract it.
 2. Open Chrome/Edge and head to:
    - Chrome: `chrome://extensions/`
    - Edge: `edge://extensions/`
@@ -70,7 +70,7 @@ Restricts standard browser API bindings using property probes (`'in'` operator) 
 6. Open your favorite streaming page (e.g. YouTube, Spotify), click the **goatEQ** icon in the toolbar, select **EQ Current Tab** and dial in your sound!
 
 ### Mozilla Firefox
-1. Download `goatEQ-v*-firefox.xpi` from the **Releases** tab.
+1. Download `goatEQ-firefox.xpi` from the **Releases** tab.
 2. Open Firefox and navigate to `about:addons`.
 3. Click the gear icon next to "Manage Your Extension" and select **Install Add-on From File...**
 4. Select the `.xpi` file you downloaded.
@@ -89,9 +89,9 @@ Each browser has its own source directory with browser-specific manifests and sc
 Build with:
 ```bash
 # Build all packages
-./chromium/build.sh   # -> dist/goatEQ-v*-chrome.crx
-./edge/build.sh       # -> dist/goatEQ-v*-edge.crx
-./firefox/build.sh    # -> dist/goatEQ-v*-firefox.xpi
+./chromium/build.sh   # -> dist/goatEQ-chrome.crx
+./edge/build.sh       # -> dist/goatEQ-edge.crx
+./firefox/build.sh    # -> dist/goatEQ-firefox.xpi
 ```
 
 For testing in Firefox, load `firefox/test/manifest.json` via `about:debugging#/runtime/this-firefox`.
