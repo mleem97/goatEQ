@@ -3,12 +3,11 @@
   "version": "1.0.0",
   "description": "> **Get Greatest Of All Time audio quality directly in your browser.** An advanced real-time equalizer and audio enhancement toolkit rebuilt from the ground up for modern browsers.",
   "scripts": {
-    "build:css": "tailwindcss -i src/tailwind/input.css -o chromium/popup.css && cp chromium/popup.css edge/popup.css && cp chromium/popup.css firefox/popup.css",
+    "build:css": "tailwindcss -i src/tailwind/input.css -o chromium/popup.css && cp chromium/popup.css firefox/popup.css",
     "build:firefox": "bash firefox/build.sh",
     "sign:firefox": "bash firefox/sign.sh",
     "build:chrome": "bash chromium/build.sh",
-    "build:edge": "bash edge/build.sh",
-    "build:all": "npm run build:css && npm run build:chrome && npm run build:edge && npm run build:firefox",
+    "build:all": "npm run build:css && npm run build:chrome && npm run build:firefox",
     "sign:all": "npm run build:css && npm run sign:firefox",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

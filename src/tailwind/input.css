@@ -1,7 +1,6 @@
 @import "tailwindcss";
 
 @source "../chromium/";
-@source "../edge/";
 @source "../firefox/";
 
 @theme {

@@ -18,7 +18,7 @@
 - **Import / Export:** Easily backup your custom presets to a JSON file or share them with others.
 - **Deep Bass Boost:** Dedicated low-end harmonic enhancer.
 - **Full Privacy Compliance:** Zero external trackers or injected code scripts. Built 100% offline-compliant with Manifest V3.
-- **Multi-Browser Support:** Optimized natively for Chrome, Edge, and Firefox.
+- **Multi-Browser Support:** Optimized natively for Chrome, Edge, Brave, and all Chromium-based browsers, plus Firefox.
 
 ---
 
@@ -26,7 +26,7 @@
 
 Under the hood, **goatEQ** uses a state-of-the-art coordination pipeline that respects the security constraints of Manifest V3 without losing any desktop-audio capabilities.
 
-### Chrome / Edge
+### Chrome / Edge / Brave (Chromium)
 ```mermaid
 graph LR
     A[Popup] --> B[Service Worker<br>sw.js]
@@ -59,11 +59,12 @@ Restricts standard browser API bindings using property probes (`'in'` operator) 
 
 ## Installation & Sideloading
 
-### Google Chrome & Microsoft Edge
-1. Download `goatEQ-chrome.zip` (or `goatEQ-edge.zip`) from the **Releases** tab and extract it.
-2. Open Chrome/Edge and head to:
+### Google Chrome, Microsoft Edge & Brave (all Chromium browsers)
+1. Download `goatEQ-chrome.zip` from the **Releases** tab and extract it.
+2. Open your browser's extensions page:
    - Chrome: `chrome://extensions/`
    - Edge: `edge://extensions/`
+   - Brave: `brave://extensions/`
 3. Toggle the **Developer mode** switch in the top right.
 4. Click **Load unpacked** in the top left.
 5. Select the extracted folder.
@@ -82,15 +83,13 @@ Restricts standard browser API bindings using property probes (`'in'` operator) 
 
 Each browser has its own source directory with browser-specific manifests and scripts:
 
-- `chromium/` — Chrome build (`sw.js` + `bg.js` + `offscreen.html`)
-- `edge/` — Edge build (identical to Chrome)
+- `chromium/` — Chrome, Edge & Brave build (`sw.js` + `bg.js` + `offscreen.html`)
 - `firefox/` — Firefox build (`background.js` with persistent page)
 
 Build with:
 ```bash
 # Build all packages
 ./chromium/build.sh   # -> dist/goatEQ-chrome.crx
-./edge/build.sh       # -> dist/goatEQ-edge.crx
 ./firefox/build.sh    # -> dist/goatEQ-firefox.xpi
 ```
 
