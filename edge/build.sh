@@ -9,5 +9,8 @@ node node_modules/crx3/bin/crx3.js \
   -o "dist/goatEQ-edge.crx" \
   -p ~/.ssh/browseraddons/goatEQ.pem \
   "$tmpdir"
+
+(cd "$tmpdir" && zip -r "../dist/goatEQ-edge.zip" . > /dev/null)
+
 rm -rf "$tmpdir"
-echo "Edge package built: dist/goatEQ-edge.crx"
+echo "Edge package built: dist/goatEQ-edge.crx and dist/goatEQ-edge.zip"
