@@ -68,7 +68,9 @@
 
 #eqDiv {
   overflow: hidden !important;
-  display: flex;
+  display: block;
+  width: 630px;
+  height: 305px;
 }
 
 #mainDiv input#tab-1:checked ~ #eqDiv,
@@ -105,16 +107,15 @@
 
 #eqSvg, #gainSvg {
   display: block;
+  float: left;
 }
 #eqSvg {
-  flex: 1;
-  height: 100%;
-  min-width: 0;
+  width: 600px;
+  height: 300px;
 }
 #gainSvg {
   width: 30px;
-  height: 100%;
-  flex-shrink: 0;
+  height: 300px;
 }
 
 #eqTabList {
