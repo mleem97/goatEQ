@@ -1,0 +1,8 @@
+exclude_paths:
+  - chromium/bg.js
+  - chromium/popup.js
+  - chromium/popup.css
+  - firefox/background.js
+  - firefox/popup.js
+  - firefox/popup.css
+  - dist/**
