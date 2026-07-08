@@ -106,6 +106,8 @@ chrome.runtime.onInstalled.addListener(() => {
 
 // Intercept messages to control/redirect capture and ensure offscreen document is open
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  void sender;
+
   if (message.type === 'getActiveTab') {
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
       sendResponse({ tab: tabs.at(0) || null });
