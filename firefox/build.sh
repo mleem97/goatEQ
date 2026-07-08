@@ -1,11 +1,12 @@
 #!/usr/bin/env bash
 set -e
 cd "$(dirname "$0")/.."
+REPO_ROOT=$(pwd)
 VERSION=$(jq -r '.version' firefox/manifest.json)
 mkdir -p dist
 tmpdir=$(mktemp -d)
 cp firefox/*.json firefox/*.js firefox/*.html firefox/*.css firefox/*.png "$tmpdir/" 2>/dev/null
-(cd "$tmpdir" && zip -r "$GITHUB_WORKSPACE/dist/goatEQ-v${VERSION}-firefox.zip" . > /dev/null)
+(cd "$tmpdir" && zip -r "$REPO_ROOT/dist/goatEQ-v${VERSION}-firefox.zip" . > /dev/null)
 cp "dist/goatEQ-v${VERSION}-firefox.zip" "dist/goatEQ-v${VERSION}-firefox.xpi"
 
 rm -rf "$tmpdir"
