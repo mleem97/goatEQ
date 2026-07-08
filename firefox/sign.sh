@@ -18,4 +18,4 @@ npx web-ext sign \
   --channel unlisted
 
 rm -rf "$tmpdir"
-echo "Firefox signed package: dist/goatEQ-signed.xpi"
+echo "Firefox signed package for v${VERSION}: dist/goatEQ-signed.xpi"
