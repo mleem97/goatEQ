@@ -4,6 +4,10 @@ const DEFAULT_FREQS = [20, 40, 80, 160, 320, 640, 1280, 2560, 5120, 10240, 20480
 const DEFAULT_QS = Array(11).fill(0.7071);
 const noopCleanup = () => undefined;
 
+function getDefaultQ(index) {
+  return DEFAULT_QS.find((_, qIndex) => qIndex === index) ?? 0.7071;
+}
+
 function getChromeApi() {
   return globalThis.chrome?.runtime ? globalThis.chrome : null;
 }
@@ -17,6 +21,16 @@ function sendRuntimeMessage(message, callback) {
   chromeApi.runtime.sendMessage(message, callback);
 }
 
+function buildUpdatedFilter(filter, updates) {
+  return {
+    index: filter.index,
+    frequency: updates.frequency ?? filter.frequency,
+    gain: updates.gain ?? filter.gain,
+    q: updates.q ?? filter.q,
+    type: filter.type
+  };
+}
+
 export function useAudioEngine() {
   const [gain, setGain] = useState(1);
   const [filters, setFilters] = useState(
@@ -24,7 +38,7 @@ export function useAudioEngine() {
       index: i,
       frequency: freq,
       gain: 0,
-      q: DEFAULT_QS[i],
+      q: getDefaultQ(i),
       type: i === 0 ? 'lowshelf' : i === 10 ? 'highshelf' : 'peaking'
     }))
   );
@@ -81,18 +95,27 @@ export function useAudioEngine() {
         return prev;
       }
 
-      const currentFilter = prev[index];
-      const nextFilter = { ...currentFilter, ...updates };
-      const newFilters = prev.map((filter, filterIndex) => (
-        filterIndex === index ? nextFilter : filter
-      ));
+      let nextFilterForMessage = null;
+      const newFilters = prev.map((filter, filterIndex) => {
+        if (filterIndex !== index) {
+          return filter;
+        }
+
+        const nextFilter = buildUpdatedFilter(filter, updates);
+        nextFilterForMessage = nextFilter;
+        return nextFilter;
+      });
+
+      if (!nextFilterForMessage) {
+        return prev;
+      }
 
       sendRuntimeMessage({
         type: 'modifyFilter',
         index,
-        gain: nextFilter.gain,
-        frequency: nextFilter.frequency,
-        q: nextFilter.q
+        gain: nextFilterForMessage.gain,
+        frequency: nextFilterForMessage.frequency,
+        q: nextFilterForMessage.q
       });
 
       return newFilters;
