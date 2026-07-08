@@ -5,4 +5,5 @@ exclude_paths:
   - firefox/background.js
   - firefox/popup.js
   - firefox/popup.css
+  - src/tailwind/input.css
   - dist/**
