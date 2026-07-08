@@ -4,38 +4,38 @@ import { motion } from 'framer-motion';
 const SVG_WIDTH = 550;
 const SVG_HEIGHT = 280;
 const PADDING = 20;
+const MIN_FREQUENCY = 20;
+const MAX_FREQUENCY = 20000;
+const MIN_GAIN = -30;
+const MAX_GAIN = 30;
 
 // Logarithmic mapping helpers
 const freqToX = (freq) => {
-  const minF = Math.log10(20);
-  const maxF = Math.log10(20000);
-  const curF = Math.log10(Math.max(20, Math.min(20000, freq)));
+  const minF = Math.log10(MIN_FREQUENCY);
+  const maxF = Math.log10(MAX_FREQUENCY);
+  const curF = Math.log10(Math.max(MIN_FREQUENCY, Math.min(MAX_FREQUENCY, freq)));
   return PADDING + ((curF - minF) / (maxF - minF)) * (SVG_WIDTH - 2 * PADDING);
 };
 
 const xToFreq = (x) => {
-  const minF = Math.log10(20);
-  const maxF = Math.log10(20000);
+  const minF = Math.log10(MIN_FREQUENCY);
+  const maxF = Math.log10(MAX_FREQUENCY);
   const boundedX = Math.max(PADDING, Math.min(SVG_WIDTH - PADDING, x));
   const ratio = (boundedX - PADDING) / (SVG_WIDTH - 2 * PADDING);
   return Math.pow(10, minF + ratio * (maxF - minF));
 };
 
 const gainToY = (gain) => {
-  const minG = -30;
-  const maxG = 30;
-  const curG = Math.max(minG, Math.min(maxG, gain));
-  const ratio = (curG - minG) / (maxG - minG);
+  const curG = Math.max(MIN_GAIN, Math.min(MAX_GAIN, gain));
+  const ratio = (curG - MIN_GAIN) / (MAX_GAIN - MIN_GAIN);
   // Invert Y axis: higher gain -> lower Y pixel
   return PADDING + (1 - ratio) * (SVG_HEIGHT - 2 * PADDING);
 };
 
 const yToGain = (y) => {
-  const minG = -30;
-  const maxG = 30;
   const boundedY = Math.max(PADDING, Math.min(SVG_HEIGHT - PADDING, y));
   const ratio = 1 - ((boundedY - PADDING) / (SVG_HEIGHT - 2 * PADDING));
-  return minG + ratio * (maxG - minG);
+  return MIN_GAIN + ratio * (MAX_GAIN - MIN_GAIN);
 };
 
 export default function EQVisualizer({ audioEngine }) {
@@ -45,16 +45,18 @@ export default function EQVisualizer({ audioEngine }) {
   // Render spectral FFT curve
   const spectralPath = useMemo(() => {
     if (!fftData || fftData.length === 0) return '';
+
     let path = `M ${PADDING} ${SVG_HEIGHT - PADDING}`;
     const step = (SVG_WIDTH - 2 * PADDING) / fftData.length;
-    for (let i = 0; i < fftData.length; i++) {
-      const x = PADDING + i * step;
+
+    for (const [index, db] of fftData.entries()) {
+      const x = PADDING + index * step;
       // fftData is usually in dB (-100 to 0)
-      const db = fftData[i];
-      const yRatio = Math.max(0, Math.min(1, (db + 100) / 100)); // Normalize
+      const yRatio = Math.max(0, Math.min(1, (db + 100) / 100));
       const y = (SVG_HEIGHT - PADDING) - (yRatio * (SVG_HEIGHT - 2 * PADDING));
       path += ` L ${x} ${y}`;
     }
+
     return path;
   }, [fftData]);
 
@@ -77,11 +79,13 @@ export default function EQVisualizer({ audioEngine }) {
       {/* Gain Slider Placeholder */}
       <div className="w-[40px] flex-shrink-0 h-full bg-goat-bg border border-goat-accent/30 rounded flex flex-col items-center justify-center">
         {/* Simple vertical range for gain */}
-        <input 
-          type="range" 
-          min="0.00316" max="10" step="0.01" 
+        <input
+          type="range"
+          min="0.00316"
+          max="10"
+          step="0.01"
           value={audioEngine.gain}
-          onChange={(e) => audioEngine.updateGain(parseFloat(e.target.value))}
+          onChange={(event) => audioEngine.updateGain(parseFloat(event.target.value))}
           className="w-[200px] -rotate-90 origin-center translate-y-[20px]"
           style={{ width: SVG_HEIGHT - 40 }}
         />
@@ -89,13 +93,13 @@ export default function EQVisualizer({ audioEngine }) {
 
       {/* Main EQ SVG */}
       <div className="flex-1 bg-goat-bg border border-goat-accent/30 rounded overflow-hidden relative">
-        <svg 
+        <svg
           ref={containerRef}
-          viewBox={`0 0 ${SVG_WIDTH} ${SVG_HEIGHT}`} 
+          viewBox={`0 0 ${SVG_WIDTH} ${SVG_HEIGHT}`}
           className="w-full h-full pointer-events-none"
         >
           {/* Grid lines */}
-          <line x1={PADDING} y1={SVG_HEIGHT/2} x2={SVG_WIDTH-PADDING} y2={SVG_HEIGHT/2} stroke="#FF7F00" strokeWidth="1" strokeDasharray="5,5" strokeOpacity="0.3" />
+          <line x1={PADDING} y1={SVG_HEIGHT / 2} x2={SVG_WIDTH - PADDING} y2={SVG_HEIGHT / 2} stroke="#FF7F00" strokeWidth="1" strokeDasharray="5,5" strokeOpacity="0.3" />
 
           {/* Spectral Path */}
           {spectralPath && (
@@ -107,18 +111,20 @@ export default function EQVisualizer({ audioEngine }) {
         {filters.map((filter, index) => {
           const x = freqToX(filter.frequency);
           const y = gainToY(filter.gain);
-          
+
           return (
             <motion.div
-              key={index}
+              key={filter.index ?? index}
               drag
               dragMomentum={false}
               dragElastic={0}
-              onDrag={(e, info) => handleDrag(index, info)}
+              onDrag={(_event, info) => handleDrag(index, info)}
               style={{
                 position: 'absolute',
-                top: 0, left: 0,
-                width: 20, height: 20,
+                top: 0,
+                left: 0,
+                width: 20,
+                height: 20,
                 borderRadius: '50%',
                 backgroundColor: filter.type === 'peaking' ? '#00e5ff' : '#9d00ff',
                 cursor: 'pointer',
@@ -126,9 +132,9 @@ export default function EQVisualizer({ audioEngine }) {
               }}
               animate={{
                 x: x - 10, // Center the 20x20 div
-                y: y - 10,
+                y: y - 10
               }}
-              transition={{ type: "spring", bounce: 0, duration: 0.1 }}
+              transition={{ type: 'spring', bounce: 0, duration: 0.1 }}
               whileHover={{ scale: 1.3 }}
               whileDrag={{ scale: 1.5 }}
             />
