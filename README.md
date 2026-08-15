@@ -1,120 +1,52 @@
-# goatEQ: Gain Optimization & Audio Treatment
+# goatEQ 2.1.2
 
-> **Get Greatest Of All Time audio quality directly in your browser.** An advanced real-time equalizer and audio enhancement toolkit rebuilt from the ground up for modern browsers.
+goatEQ is a real-time browser equalizer and mastering extension inspired by the original EARS Audio interface.
 
----
+## Interface modes
 
-## About this Project
+- **Classic** preserves the compact 11-band EARS-inspired interface. Its Mastering tab is disabled by default and can be enabled in Settings.
+- **2.0** adds an always-visible source status, live before/after spectrum, waveform monitor, stereo meters, gain reduction and a mastering rail.
 
-**goatEQ** is a modernized fork of the original "EARS: Bass Boost, EQ Any Audio!" extension. The primary goal of this fork is to fully rewrite and migrate the architecture to **Manifest V3**, ensuring that this beloved audio tool remains fully functional, secure, and compatible with modern versions of Google Chrome and other Chromium-based browsers, while giving it a fresh, responsive UI.
+Both modes share the same audio engine, EQ state, mastering chain and presets. Changing the interface does not reset audio.
 
----
+## Audio features
 
-## Features
+- The original eleven EARS-inspired EQ bands remain the default. Add or remove bands at runtime from 1 up to 32 without rebuilding the live audio graph.
+- Spectrum and waveform Before/After monitoring are enabled by default and show the signal immediately before the EQ and after the complete chain.
+- The mastering tab is an ordered, instance-based chain. Effects can be added repeatedly, bypassed, removed and moved up or down.
+- Available effects: trim, high/low-pass, de-clipper, gate, compressor, smart maximizer, transient shaper, de-esser, stereo tool, bass enhancer, presence, exciter, saturation, soft clipper, delay, echo, reverb and limiter.
+- New installs start with the conservative `Safe Loudness` chain. The final limiter ceiling is −1 dB and the maximizer gain is bounded to protect dynamics.
+- Existing 11-band presets remain valid; new presets can contain any matching set of 1–32 frequency/gain/Q/type values.
 
-- **11-Band Graphic Equalizer:** Symmetrical parametric control over the entire frequency spectrum.
-- **Spectrum Visualizer:** Real-time FFT analysis of whatever tab you're listening to.
-- **Preset Library:** Unlimited presets storage. Create, save, and manage custom filter states.
-- **Import / Export:** Easily backup your custom presets to a JSON file or share them with others.
-- **Deep Bass Boost:** Dedicated low-end harmonic enhancer.
-- **Full Privacy Compliance:** Zero external trackers or injected code scripts. Built 100% offline-compliant with Manifest V3.
-- **Multi-Browser Support:** Optimized natively for Chrome, Edge, Brave, and all Chromium-based browsers, plus Firefox.
+## Build
 
----
-
-## Architecture (Manifest V3)
-
-Under the hood, **goatEQ** uses a state-of-the-art coordination pipeline that respects the security constraints of Manifest V3 without losing any desktop-audio capabilities.
-
-### Chrome / Edge / Brave (Chromium)
-```mermaid
-graph LR
-    A[Popup] --> B[Service Worker<br>sw.js]
-    B --> C[Offscreen Engine<br>bg.js]
-    C --> D[Web Audio API]
-    style A fill:#FF7F00,color:#fff,stroke:#333,stroke-width:2px
-    style B fill:#2A2D34,color:#fff,stroke:#FF7F00,stroke-width:2px
-    style C fill:#2A2D34,color:#fff,stroke:#FF7F00,stroke-width:2px
-    style D fill:#9573A8,color:#fff,stroke:#333,stroke-width:2px
-```
-- **Service Worker (`sw.js`):** Orchestrator that intercepts active tabs, manages lifetimes, and bridges communication.
-- **Offscreen Engine (`bg.js`):** Sandboxed environment that hosts the high-performance Web Audio API, handles user filters, and processes incoming real-time tab streams.
-
-### Firefox
-```mermaid
-graph LR
-    A[Popup] --> B[Background Page<br>background.js]
-    B --> C[Web Audio API]
-    style A fill:#FF7F00,color:#fff,stroke:#333,stroke-width:2px
-    style B fill:#2A2D34,color:#fff,stroke:#FF7F00,stroke-width:2px
-    style C fill:#9573A8,color:#fff,stroke:#333,stroke-width:2px
-```
-- Firefox uses a persistent **background script** instead of a service worker + offscreen document, running Web Audio directly in the background page.
-- No `service_worker`, no `offscreen` API — Firefox does not support these in MV3.
-
-### Safe Guards
-Restricts standard browser API bindings using property probes (`'in'` operator) and offline stubs, avoiding runtime TypeError flags in restricted sandbox scopes.
-
----
-
-## Installation & Sideloading
-
-### Google Chrome, Microsoft Edge & Brave (all Chromium browsers)
-1. Download `goatEQ-chrome.zip` from the **Releases** tab and extract it.
-2. Open your browser's extensions page:
-   - Chrome: `chrome://extensions/`
-   - Edge: `edge://extensions/`
-   - Brave: `brave://extensions/`
-3. Toggle the **Developer mode** switch in the top right.
-4. Click **Load unpacked** in the top left.
-5. Select the extracted folder.
-6. Open your favorite streaming page (e.g. YouTube, Spotify), click the **goatEQ** icon in the toolbar, select **EQ Current Tab** and dial in your sound!
-
-### Mozilla Firefox
-1. Download `goatEQ-firefox.xpi` from the **Releases** tab.
-2. Open Firefox and navigate to `about:addons`.
-3. Click the gear icon next to "Manage Your Extension" and select **Install Add-on From File...**
-4. Select the `.xpi` file you downloaded.
-5. Enjoy permanent, zero-lag tab equalizing!
-
----
-
-## Development & Packaging
-
-Each browser has its own source directory with browser-specific manifests and scripts:
-
-- `chromium/` — Chrome, Edge & Brave build (`sw.js` + `bg.js` + `offscreen.html`)
-- `firefox/` — Firefox build (`background.js` with persistent page)
-
-Build with:
 ```bash
-# Build all packages
-./chromium/build.sh   # -> dist/goatEQ-chrome.crx
-./firefox/build.sh    # -> dist/goatEQ-firefox.xpi
+npm install
+npm run check
 ```
 
-For testing in Firefox, load `firefox/test/manifest.json` via `about:debugging#/runtime/this-firefox`.
+The production extension is written to `dist/`. The Vite build copies the browser runtime files, icons and manifest automatically.
 
----
+## Load in Chromium
 
-## Contributors
+1. Build the extension.
+2. Open `chrome://extensions`.
+3. Enable Developer mode.
+4. Choose **Load unpacked** and select `dist/`.
 
-- **Marvin Lee M. (mleem97)** - Lead Developer & Maintainer. Upgraded the toolkit to Manifest V3, stabilized the audio offscreen sandbox, and created the modern *goatEQ* branding.
+## Firefox
 
----
+Firefox does not currently expose a supported WebExtension API equivalent to Chromium's `tabCapture` source hand-off. The Firefox package therefore keeps the React UI, presets and configuration available but clearly disables automatic tab-audio processing instead of using an unreliable non-standard constraint or reporting a false capture state.
 
-## Sponsoring & Support
+The package uses `manifest.firefox.json` as its final `manifest.json` and loads `offscreen.html` as a persistent background page. Package the files themselves at the root of the ZIP/XPI, not their containing folder. A future Firefox audio backend must be implemented separately, for example as a user-mediated visible capture page or a deliberately site-limited media-element integration.
 
-If **goatEQ** makes your web audio sound greatest of all time, consider supporting the development!
+## Tests
 
-- **GitHub Sponsors:** [Sponsor @mleem97](https://github.com/sponsors/mleem97)
-- **Buy Me A Coffee:** [buymeacoffee.com/marvinleedj](https://www.buymeacoffee.com/marvinleedj)
-- **Ko-fi:** [ko-fi.com/mleem](https://ko-fi.com/mleem)
-- **PayPal:** [paypal.me/mleem97](https://paypal.me/mleem97)
-- **Revolut:** [revolut.me/animusfound](https://revolut.me/animusfound)
+```bash
+npm run test
+npm run build
+```
 
----
+The tests cover the preserved quartic EARS frequency mapping, gain mapping, 1/11/32-band presets, DSP command ordering, Chrome capture confirmation, message ownership, the complete effect catalogue, Firefox capability gating and legacy preset compatibility. A real-browser Chrome smoke test is still required before publishing because automated Node tests cannot grant and route a live browser-tab stream.
 
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+See [React Architecture](docs/REACT_ARCHITECTURE.md) for the runtime boundary and browser-specific assessment.

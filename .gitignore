@@ -1,31 +1,14 @@
-# Build artifacts and packaging folders
-dist/
-build-firefox/
-goateq_source.png
-
-# Node and package manager files
 node_modules/
-package-lock.json
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-
-# OS-specific files
-.DS_Store
-Thumbs.db
-desktop.ini
-
-# IDEs and Text Editors
-.idea/
-.vscode/
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
-*~
-
-# Logs and runtime databases
+dist/
+artifacts/
+.package-staging/
+packages/
+assets/
+*.zip
+*.xpi
 *.log
+.DS_Store
 .eslintcache
+.env
+.env.*
+!.env.example

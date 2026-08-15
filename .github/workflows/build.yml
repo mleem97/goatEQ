@@ -1,4 +1,4 @@
-name: Build Extensions
+name: Verify and package
 
 on:
   push:
@@ -9,93 +9,51 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
 
 jobs:
-  build:
-    name: Build Extension Packages
+  verify:
+    name: Test, build and package
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
-      - name: Read version from manifest
-        id: version
-        run: |
-          VERSION=$(jq -r '.version' chromium/manifest.json)
-          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
-          echo "Building goatEQ v$VERSION"
+      - name: Set up Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
 
-      - name: Install dependencies and build CSS
-        run: |
-          npm ci
-          npm run build:css
+      - name: Install dependencies
+        run: npm ci
 
-      - name: Build Chromium Extension (.zip)
-        run: |
-          VERSION=${{ steps.version.outputs.version }}
-          mkdir -p dist
-          tmpdir=$(mktemp -d)
-          cp chromium/*.json chromium/*.js chromium/*.html chromium/*.css chromium/*.png "$tmpdir/" 2>/dev/null
-          cd "$tmpdir" && zip -r "$GITHUB_WORKSPACE/dist/goatEQ-v${VERSION}-chrome.zip" . && cd "$GITHUB_WORKSPACE"
-          rm -rf "$tmpdir"
+      - name: Run regression tests
+        run: npm test
 
-      - name: Build Edge Extension (.zip)
-        run: |
-          VERSION=${{ steps.version.outputs.version }}
-          mkdir -p dist
-          tmpdir=$(mktemp -d)
-          cp edge/*.json edge/*.js edge/*.html edge/*.css edge/*.png "$tmpdir/" 2>/dev/null
-          cd "$tmpdir" && zip -r "$GITHUB_WORKSPACE/dist/goatEQ-v${VERSION}-edge.zip" . && cd "$GITHUB_WORKSPACE"
-          rm -rf "$tmpdir"
+      - name: Build and package browser extensions
+        run: npm run package:all
 
-      - name: Build Firefox Extension (.xpi)
-        run: |
-          VERSION=${{ steps.version.outputs.version }}
-          mkdir -p dist
-          tmpdir=$(mktemp -d)
-          cp firefox/*.json firefox/*.js firefox/*.html firefox/*.css firefox/*.png "$tmpdir/" 2>/dev/null
-          cd "$tmpdir" && zip -r "$GITHUB_WORKSPACE/dist/goatEQ-v${VERSION}-firefox.xpi" . && cd "$GITHUB_WORKSPACE"
-          rm -rf "$tmpdir"
-
-      - name: List build artifacts
-        run: ls -lh dist/
-
-      - name: Upload Chrome artifact
+      - name: Upload Chrome package
         uses: actions/upload-artifact@v4
         with:
           name: goatEQ-chrome
-          path: dist/*-chrome.zip
+          path: artifacts/*-chrome.zip
+          if-no-files-found: error
 
-      - name: Upload Firefox artifact
+      - name: Upload Firefox compatibility package
         uses: actions/upload-artifact@v4
         with:
           name: goatEQ-firefox
-          path: dist/*-firefox.xpi
+          path: artifacts/*-firefox.zip
+          if-no-files-found: error
 
-      - name: Upload Edge artifact
+      - name: Upload source package
         uses: actions/upload-artifact@v4
         with:
-          name: goatEQ-edge
-          path: dist/*-edge.zip
-
-      - name: Create GitHub Release
-        if: startsWith(github.ref, 'refs/tags/v')
-        # softprops/action-gh-release v2.6.2 pinned to a full commit SHA.
-        uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65
-        with:
-          name: "goatEQ v${{ steps.version.outputs.version }}"
-          body: |
-            ## goatEQ v${{ steps.version.outputs.version }}
-
-            **Gain Optimization & Audio Treatment** for your browser.
-
-            ### Downloads
-            | Browser | File | Install |
-            |---------|------|---------|
-            | 🟢 Chrome | `goatEQ-*-chrome.zip` | Unzip → `chrome://extensions/` → Load unpacked |
-            | 🔵 Edge | `goatEQ-*-edge.zip` | Unzip → `edge://extensions/` → Load unpacked |
-            | 🟠 Firefox | `goatEQ-*-firefox.xpi` | Drag into Firefox or `about:addons` → Install from file |
-          files: dist/*
-          generate_release_notes: true
+          name: goatEQ-source
+          path: artifacts/*-source.zip
+          if-no-files-found: error
