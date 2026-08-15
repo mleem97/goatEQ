@@ -1,43 +1,22 @@
 {
-  "name": "goateq",
-  "version": "1.0.0",
-  "description": "> **Get Greatest Of All Time audio quality directly in your browser.** An advanced real-time equalizer and audio enhancement toolkit rebuilt from the ground up for modern browsers.",
+  "name": "goateq-extension",
+  "private": true,
+  "version": "2.1.2",
+  "type": "module",
   "scripts": {
-    "build:css": "tailwindcss -i src/tailwind/input.css -o chromium/popup.css && cp chromium/popup.css firefox/popup.css",
-    "build:firefox": "bash firefox/build.sh",
-    "sign:firefox": "bash firefox/sign.sh",
-    "build:chrome": "bash chromium/build.sh",
-    "build:all": "npm run build:css && npm run build:chrome && npm run build:firefox",
-    "sign:all": "npm run build:css && npm run sign:firefox",
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/mleem97/goatEQ.git"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/mleem97/goatEQ/issues"
-  },
-  "homepage": "https://github.com/mleem97/goatEQ#readme",
-  "devDependencies": {
-    "@crxjs/vite-plugin": "^1.0.14",
-    "@tailwindcss/cli": "^4.3.0",
-    "@tailwindcss/vite": "^4.3.0",
-    "@vitejs/plugin-react": "^6.0.2",
-    "crx3": "^2.0.0",
-    "react-icons": "^5.6.0",
-    "tailwindcss": "^4.3.0",
-    "vite": "^8.0.14",
-    "web-ext": "^10.2.0"
+    "dev": "vite",
+    "build": "vite build",
+    "package:all": "npm run build && node scripts/package-extension.mjs",
+    "test": "node --test tests/*.test.js",
+    "check": "npm run test && npm run build"
   },
   "dependencies": {
-    "framer-motion": "^12.40.0",
-    "lucide-react": "^1.16.0",
-    "motion": "^12.40.0",
-    "react": "^19.2.6",
-    "react-dom": "^19.2.6"
+    "lucide-react": "^0.468.0",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.4",
+    "vite": "^6.0.7"
   }
 }

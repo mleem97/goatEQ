@@ -1,0 +1,35 @@
+{
+  "manifest_version": 2,
+  "name": "goatEQ: Gain Optimization & Audio Treatment",
+  "short_name": "goatEQ",
+  "version": "2.1.2",
+  "author": "mleem97 / marvin lee meyer",
+  "homepage_url": "https://github.com/mleem97/goatEQ",
+  "description": "Real-time browser equalizer and mastering chain with spectral before/after monitoring.",
+  "browser_action": {
+    "default_icon": "goateq128.png",
+    "default_popup": "index.html"
+  },
+  "background": {
+    "page": "offscreen.html",
+    "persistent": true
+  },
+  "icons": {
+    "16": "goateq16.png",
+    "32": "goateq32.png",
+    "48": "goateq48.png",
+    "64": "goateq64.png",
+    "128": "goateq128.png"
+  },
+  "permissions": ["activeTab", "tabs", "storage"],
+  "content_security_policy": "script-src 'self'; object-src 'self'",
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "goateq@mleem97.github.io",
+      "strict_min_version": "128.0",
+      "data_collection_permissions": {
+        "required": ["none"]
+      }
+    }
+  }
+}
