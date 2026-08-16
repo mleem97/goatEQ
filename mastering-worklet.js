@@ -1,3 +1,13 @@
+// sampleRate is provided by AudioWorkletGlobalScope. Read it through
+// globalThis so ordinary JS tooling does not treat it as an undeclared name.
+const WORKLET_SAMPLE_RATE = Number.isFinite(globalThis.sampleRate) && globalThis.sampleRate > 0
+  ? globalThis.sampleRate
+  : 48000;
+const SOFT_CLIP_DENOMINATOR_EPSILON = 0.000001;
+const ENVELOPE_EPSILON = 0.00000001;
+const MAXIMIZER_ENVELOPE_FLOOR = 0.0001;
+const MAXIMIZER_RISE_COEFFICIENT = 0.0008;
+
 class GoatMasteringProcessor extends AudioWorkletProcessor {
   constructor() {
     super();
@@ -39,14 +49,14 @@ class GoatMasteringProcessor extends AudioWorkletProcessor {
 
   clamp(value, min, max) { return Math.min(max, Math.max(min, Number(value))); }
   dbToGain(db) { return Math.pow(10, Number(db) / 20); }
-  coefficient(frequency) { return Math.exp(-2 * Math.PI * this.clamp(frequency, 5, sampleRate * 0.45) / sampleRate); }
-  timeCoefficient(seconds) { return Math.exp(-1 / Math.max(1, this.clamp(seconds, 0.001, 10) * sampleRate)); }
+  coefficient(frequency) { return Math.exp(-2 * Math.PI * this.clamp(frequency, 5, WORKLET_SAMPLE_RATE * 0.45) / WORKLET_SAMPLE_RATE); }
+  timeCoefficient(seconds) { return Math.exp(-1 / Math.max(1, this.clamp(seconds, 0.001, 10) * WORKLET_SAMPLE_RATE)); }
   setResult(left, right) { this.result[0] = left; this.result[1] = right; return this.result; }
   softClip(sample, drive, ceiling, kneeStart) {
     const driven = sample * drive;
     const magnitude = Math.abs(driven);
     if (magnitude <= kneeStart) return driven;
-    const normalized = (magnitude - kneeStart) / Math.max(1e-6, ceiling - kneeStart);
+    const normalized = (magnitude - kneeStart) / Math.max(SOFT_CLIP_DENOMINATOR_EPSILON, ceiling - kneeStart);
     return Math.sign(driven) * Math.min(ceiling, kneeStart + (ceiling - kneeStart) * Math.tanh(normalized));
   }
 
@@ -64,7 +74,7 @@ class GoatMasteringProcessor extends AudioWorkletProcessor {
   }
 
   ensureBuffers(state, seconds = 2) {
-    const length = Math.max(2048, Math.ceil(sampleRate * seconds));
+    const length = Math.max(2048, Math.ceil(WORKLET_SAMPLE_RATE * seconds));
     if (!state.buffers || state.bufferLength !== length) {
       state.buffers = [new Float32Array(length), new Float32Array(length)];
       state.bufferLength = length;
@@ -121,7 +131,7 @@ class GoatMasteringProcessor extends AudioWorkletProcessor {
         state.envelope = Math.max(peak, state.envelope * release);
         const threshold = this.dbToGain(settings.threshold ?? -55);
         const ratio = this.clamp(settings.ratio ?? 2, 1, 8);
-        const normalized = this.clamp(state.envelope / Math.max(threshold, 1e-6), 0, 1);
+        const normalized = this.clamp(state.envelope / Math.max(threshold, SOFT_CLIP_DENOMINATOR_EPSILON), 0, 1);
         const target = normalized < 1 ? Math.pow(normalized, ratio - 1) : 1;
         state.gain += (target - state.gain) * (target < state.gain ? 0.08 : 0.002);
         return this.setResult(left * state.gain, right * state.gain);
@@ -132,7 +142,7 @@ class GoatMasteringProcessor extends AudioWorkletProcessor {
         state.envelope = peak > state.envelope ? peak + attack * (state.envelope - peak) : peak + release * (state.envelope - peak);
         const thresholdDb = this.clamp(settings.threshold ?? -18, -48, 0);
         const ratio = this.clamp(settings.ratio ?? 2, 1, 20);
-        const levelDb = 20 * Math.log10(Math.max(state.envelope, 1e-8));
+        const levelDb = 20 * Math.log10(Math.max(state.envelope, ENVELOPE_EPSILON));
         const reductionDb = levelDb > thresholdDb ? (thresholdDb + (levelDb - thresholdDb) / ratio) - levelDb : 0;
         const gain = this.dbToGain(reductionDb + this.clamp(settings.makeupDb ?? 0, 0, 18));
         mix = this.clamp(settings.mix ?? 1, 0, 1);
@@ -145,12 +155,12 @@ class GoatMasteringProcessor extends AudioWorkletProcessor {
         const target = this.dbToGain(settings.targetDb ?? -14);
         const maxGain = this.dbToGain(this.clamp(settings.maxGainDb ?? 6, 0, 12));
         const ceiling = this.dbToGain(this.clamp(settings.ceilingDb ?? -1, -6, -0.1));
-        const loudnessGain = this.clamp(target / Math.max(state.envelope, 1e-4), 1, maxGain);
+        const loudnessGain = this.clamp(target / Math.max(state.envelope, MAXIMIZER_ENVELOPE_FLOOR), 1, maxGain);
         const peakGain = peak > 0 ? ceiling / peak : maxGain;
         const desired = Math.min(loudnessGain, peakGain);
-        state.gain += (desired - state.gain) * (desired < state.gain ? 0.18 : 0.0008);
+        state.gain += (desired - state.gain) * (desired < state.gain ? 0.18 : MAXIMIZER_RISE_COEFFICIENT);
         const gain = Math.min(state.gain, peakGain);
-        if (gain < 1) this.maxGainReduction = Math.min(this.maxGainReduction, 20 * Math.log10(Math.max(gain, 1e-8)));
+        if (gain < 1) this.maxGainReduction = Math.min(this.maxGainReduction, 20 * Math.log10(Math.max(gain, ENVELOPE_EPSILON)));
         return this.setResult(left * gain, right * gain);
       }
       case 'transient': {
@@ -247,8 +257,8 @@ class GoatMasteringProcessor extends AudioWorkletProcessor {
         this.ensureBuffers(state, 1.7);
         const baseTime = this.clamp(settings.time ?? (effect.type === 'echo' ? 0.36 : 0.24), 0.01, 1.5);
         const offset = effect.type === 'echo' ? this.clamp(settings.stereoOffset ?? 0.025, 0, 0.12) : 0;
-        const delayLeft = Math.floor(baseTime * sampleRate);
-        const delayRight = Math.floor((baseTime + offset) * sampleRate);
+        const delayLeft = Math.floor(baseTime * WORKLET_SAMPLE_RATE);
+        const delayRight = Math.floor((baseTime + offset) * WORKLET_SAMPLE_RATE);
         const feedback = this.clamp(settings.feedback ?? 0.25, 0, 0.85);
         const tone = this.clamp(settings.tone ?? 0.6, 0, 1);
         mix = this.clamp(settings.mix ?? 0.12, 0, 1);
@@ -271,8 +281,8 @@ class GoatMasteringProcessor extends AudioWorkletProcessor {
         const damping = this.clamp(settings.damping ?? 0.55, 0, 1);
         const preDelay = this.clamp(settings.preDelay ?? 0.012, 0, 0.12);
         mix = this.clamp(settings.mix ?? 0.1, 0, 0.8);
-        const delayLeft = Math.floor((0.031 + size * 0.21 + preDelay) * sampleRate);
-        const delayRight = Math.floor((0.043 + size * 0.27 + preDelay) * sampleRate);
+        const delayLeft = Math.floor((0.031 + size * 0.21 + preDelay) * WORKLET_SAMPLE_RATE);
+        const delayRight = Math.floor((0.043 + size * 0.27 + preDelay) * WORKLET_SAMPLE_RATE);
         const readLeft = (state.index - delayLeft + state.bufferLength) % state.bufferLength;
         const readRight = (state.index - delayRight + state.bufferLength) % state.bufferLength;
         const delayedLeft = state.buffers[0][readLeft];
@@ -289,9 +299,9 @@ class GoatMasteringProcessor extends AudioWorkletProcessor {
       case 'limiter': {
         const ceiling = this.dbToGain(this.clamp(settings.threshold ?? -1, -12, 0));
         const release = this.timeCoefficient(settings.release ?? 0.12);
-        const desired = peak > ceiling ? ceiling / Math.max(peak, 1e-8) : 1;
+        const desired = peak > ceiling ? ceiling / Math.max(peak, ENVELOPE_EPSILON) : 1;
         state.gain = desired < state.gain ? desired : 1 + release * (state.gain - 1);
-        if (state.gain < 1) this.maxGainReduction = Math.min(this.maxGainReduction, 20 * Math.log10(Math.max(state.gain, 1e-8)));
+        if (state.gain < 1) this.maxGainReduction = Math.min(this.maxGainReduction, 20 * Math.log10(Math.max(state.gain, ENVELOPE_EPSILON)));
         return this.setResult(this.clamp(left * state.gain, -ceiling, ceiling), this.clamp(right * state.gain, -ceiling, ceiling));
       }
       default:
@@ -309,7 +319,7 @@ class GoatMasteringProcessor extends AudioWorkletProcessor {
     this.meter.outputEnergy[0] += outputLeft * outputLeft;
     this.meter.outputEnergy[1] += outputRight * outputRight;
     this.meterFrames += 1;
-    if (this.meterFrames < sampleRate / 12) return;
+    if (this.meterFrames < WORKLET_SAMPLE_RATE / 12) return;
     const frames = this.meterFrames;
     this.port.postMessage({
       type: 'meter',
