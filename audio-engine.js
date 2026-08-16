@@ -1,4 +1,4 @@
-/* global chrome, AudioContext, AudioWorkletNode */
+/* global AudioContext, AudioWorkletNode */
 (function goatEQAudioEngine() {
   'use strict';
 
@@ -29,7 +29,7 @@
     'disconnectTab', 'startCaptureOffscreen', 'stopCaptureOffscreen', 'eqTab'
   ]);
   const frequencies = [20, 40, 80, 160, 320, 640, 1280, 2560, 5120, 10240, 20480];
-  const effectDefaults = {
+  const effectDefaults = Object.freeze(Object.assign(Object.create(null), {
     input: { trimDb: 0 },
     highpass: { frequency: 25, q: 0.7071 },
     lowpass: { frequency: 19000 },
@@ -50,7 +50,7 @@
     reverb: { size: 0.45, damping: 0.55, preDelay: 0.012, mix: 0.1 },
     limiter: { threshold: -1, release: 0.12 },
     output: { trimDb: 0 }
-  };
+  }));
 
   function createSafeEffectChain() {
     return [
@@ -90,9 +90,23 @@
   let engineError = null;
   let workletAvailable = false;
   const streams = new Map();
-  let presets = {};
+  let presets = Object.create(null);
   const revisions = { filters: 0, gain: 0, mastering: 0 };
-  const engineSessionId = globalThis.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random()}`;
+  const masteringModules = new Set(Object.keys(defaults.mastering));
+
+  function createEngineSessionId() {
+    const cryptoApi = globalThis.crypto;
+    if (typeof cryptoApi?.randomUUID === 'function') return cryptoApi.randomUUID();
+    if (typeof cryptoApi?.getRandomValues === 'function') {
+      const values = new Uint32Array(4);
+      cryptoApi.getRandomValues(values);
+      return Array.from(values, (value) => value.toString(16).padStart(8, '0')).join('-');
+    }
+    // The identifier is diagnostic only; do not introduce a weak PRNG fallback.
+    return `session-${Date.now().toString(36)}`;
+  }
+
+  const engineSessionId = createEngineSessionId();
   let workletMeter = {
     inputPeak: -Infinity, outputPeak: -Infinity,
     inputPeakLeft: -Infinity, inputPeakRight: -Infinity,
@@ -105,8 +119,37 @@
   };
 
   function clamp(value, min, max) { return Math.min(max, Math.max(min, Number(value))); }
+  function arrayIndex(value, length) {
+    const index = Number(value);
+    return Number.isInteger(index) && index >= 0 && index < length ? index : null;
+  }
   function dbToGain(db) { return Math.pow(10, db / 20); }
   function gainToDb(gain) { return gain > 0 ? 20 * Math.log10(gain) : -Infinity; }
+  function hasOwn(object, key) { return Object.prototype.hasOwnProperty.call(object, key); }
+  function ownValue(object, key) { return Object.getOwnPropertyDescriptor(object, key)?.value; }
+
+  function mergePresetStores(...stores) {
+    const result = Object.create(null);
+    for (const store of stores) {
+      if (!store || typeof store !== 'object') continue;
+      for (const [name, preset] of Object.entries(store)) {
+        Object.defineProperty(result, name, {
+          value: preset,
+          enumerable: true,
+          configurable: true,
+          writable: true
+        });
+      }
+    }
+    return result;
+  }
+
+  function normalizePresetName(value) {
+    if (typeof value !== 'string') return null;
+    const name = value.trim();
+    if (!name || name.length > 80 || ['__proto__', 'constructor', 'prototype'].includes(name)) return null;
+    return name;
+  }
 
   function acceptRevision(domain, message) {
     if (!Number.isSafeInteger(message?.revision) || message.revision < 0) {
@@ -136,7 +179,8 @@
   }
 
   function normalizeMasteringPatch(module, patch = {}) {
-    const current = state.mastering[module];
+    if (!masteringModules.has(module)) return null;
+    const current = ownValue(state.mastering, module);
     if (!current) return null;
     const enabled = typeof patch.enabled === 'boolean' ? patch.enabled : current.enabled;
     switch (module) {
@@ -195,7 +239,7 @@
   }
 
   function normalizeEffectSettings(type, value = {}) {
-    const fallback = effectDefaults[type];
+    const fallback = hasOwn(effectDefaults, type) ? ownValue(effectDefaults, type) : null;
     if (!fallback) return null;
     switch (type) {
       case 'input':
@@ -240,7 +284,7 @@
     const result = [];
     for (let index = 0; index < value.length; index += 1) {
       const effect = value[index];
-      if (!effect || typeof effect !== 'object' || !effectDefaults[effect.type]) return null;
+      if (!effect || typeof effect !== 'object' || !hasOwn(effectDefaults, effect.type)) return null;
       let id = String(effect.id || `${effect.type}-${index + 1}`).slice(0, 96);
       while (ids.has(id)) id = `${id}-${index + 1}`;
       ids.add(id);
@@ -288,6 +332,17 @@
           : index === 0 ? 'lowshelf' : index === length - 1 ? 'highshelf' : 'peaking')
         : undefined
     };
+  }
+
+  function normalizePresetStore(value) {
+    const result = Object.create(null);
+    if (!value || typeof value !== 'object' || Array.isArray(value)) return result;
+    for (const [name, preset] of Object.entries(value)) {
+      const safeName = normalizePresetName(name);
+      const normalized = normalizePreset(preset);
+      if (safeName && normalized) result[safeName] = normalized;
+    }
+    return result;
   }
 
   function downsampleWaveform(data, targetLength = 512) {
@@ -371,7 +426,7 @@
         state.filters = migratedFilters;
         if (Number.isFinite(legacyGain)) state.gain = legacyGain;
         const legacyPresets = JSON.parse(localStorage.getItem('PRESETS'));
-        if (legacyPresets && typeof legacyPresets === 'object') presets = legacyPresets;
+        presets = normalizePresetStore(legacyPresets);
       } catch { /* Invalid legacy data is safely ignored. */ }
     }
     state.filters = state.filters.map((filter, index) => normalizeFilter(filter, index));
@@ -380,7 +435,7 @@
     }
     state.effectChain = normalizeEffectChain(state.effectChain) ?? createSafeEffectChain();
     state.mastering = chainToLegacyMastering(state.effectChain);
-    presets = stored.goateqPresets ?? presets;
+    presets = normalizePresetStore(stored.goateqPresets ?? presets);
   }
 
   function persist() {
@@ -683,7 +738,8 @@
       case 'getFFT': return getFFT();
       case 'getPresetsForExport': return { presets };
       case 'modifyFilter': {
-        const index = clamp(message.index, 0, state.filters.length - 1);
+        const index = arrayIndex(message.index, state.filters.length);
+        if (index === null) return { error: 'Invalid EQ filter index.' };
         if (!acceptRevision('filters', message)) return { ok: true, stale: true, filterRevision: revisions.filters };
         state.filters[index] = normalizeFilter(message, index);
         applyAllSettings(); persist();
@@ -702,7 +758,8 @@
       }
       case 'resetFilter': {
         if (!acceptRevision('filters', message)) return status();
-        const index = clamp(message.index, 0, state.filters.length - 1);
+        const index = arrayIndex(message.index, state.filters.length);
+        if (index === null) return { error: 'Invalid EQ filter index.' };
         state.filters[index] = defaults.filters[index]
           ? { ...defaults.filters[index] }
           : { ...state.filters[index], gain: 0, q: 0.7071 };
@@ -716,9 +773,10 @@
       }
       case 'preset': {
         if (!acceptRevision('filters', message)) return status();
+        const presetName = normalizePresetName(message.preset);
         const preset = message.preset === 'bassBoost'
           ? { frequencies: frequencies.map((frequency, index) => index === 0 ? 340 : frequency), gains: frequencies.map((_, index) => index === 0 ? 5 : 0), qs: frequencies.map(() => 0.7071) }
-          : normalizePreset(presets[message.preset]);
+          : presetName ? ownValue(presets, presetName) : null;
         if (preset) state.filters = preset.frequencies.map((frequency, index) => normalizeFilter({
           frequency,
           gain: preset.gains[index],
@@ -727,15 +785,49 @@
         }, index));
         applyAllSettings(); persist(); return status();
       }
-      case 'savePreset': presets[message.preset] = { frequencies: state.filters.map((filter) => filter.frequency), gains: state.filters.map((filter) => filter.gain), qs: state.filters.map((filter) => filter.q), types: state.filters.map((filter) => filter.type) }; persist(); return status();
-      case 'deletePreset': delete presets[message.preset]; persist(); return status();
+      case 'savePreset': {
+        const presetName = normalizePresetName(message.preset);
+        if (!presetName) return { error: 'Invalid preset name.' };
+        Object.defineProperty(presets, presetName, {
+          value: { frequencies: state.filters.map((filter) => filter.frequency), gains: state.filters.map((filter) => filter.gain), qs: state.filters.map((filter) => filter.q), types: state.filters.map((filter) => filter.type) },
+          enumerable: true,
+          configurable: true,
+          writable: true
+        });
+        persist();
+        return status();
+      }
+      case 'deletePreset': {
+        const presetName = normalizePresetName(message.preset);
+        if (presetName && hasOwn(presets, presetName)) {
+          const remaining = Object.create(null);
+          for (const [name, preset] of Object.entries(presets)) {
+            if (name === presetName) continue;
+            Object.defineProperty(remaining, name, {
+              value: preset,
+              enumerable: true,
+              configurable: true,
+              writable: true
+            });
+          }
+          presets = remaining;
+        }
+        persist();
+        return status();
+      }
       case 'importPresets': {
-        const imported = {};
+        const imported = Object.create(null);
         for (const [name, value] of Object.entries(message.presets ?? {})) {
           const preset = normalizePreset(value);
-          if (preset) imported[String(name).trim().slice(0, 80)] = preset;
+          const presetName = normalizePresetName(name);
+          if (presetName && preset) Object.defineProperty(imported, presetName, {
+            value: preset,
+            enumerable: true,
+            configurable: true,
+            writable: true
+          });
         }
-        presets = { ...presets, ...imported };
+        presets = mergePresetStores(presets, imported);
         persist();
         return status();
       }
@@ -743,7 +835,12 @@
         if (!acceptRevision('mastering', message)) return status();
         const normalized = normalizeMasteringPatch(message.module, message.patch);
         if (!normalized) return { error: 'Unknown mastering module.' };
-        state.mastering[message.module] = normalized;
+        Object.defineProperty(state.mastering, message.module, {
+          value: normalized,
+          enumerable: true,
+          configurable: true,
+          writable: true
+        });
         const existingIndex = state.effectChain.findIndex((effect) => effect.type === message.module);
         const { enabled, ...settings } = normalized;
         if (existingIndex >= 0) {
@@ -752,7 +849,7 @@
             enabled,
             settings: normalizeEffectSettings(message.module, settings)
           };
-        } else if (effectDefaults[message.module] && state.effectChain.length < maxEffects) {
+        } else if (hasOwn(effectDefaults, message.module) && state.effectChain.length < maxEffects) {
           state.effectChain.push({
             id: `legacy-added-${Date.now()}-${message.module}`,
             type: message.module,
@@ -807,7 +904,7 @@
     }
   }
 
-  api.runtime.onMessage.addListener((message) => {
+  api.runtime.onMessage.addListener((message, sender, sendResponse) => {
     // runtime.sendMessage is broadcast to every extension context, including
     // the sender. Never claim service-worker/storage messages here: returning
     // true without eventually calling sendResponse produces Chrome's
@@ -816,10 +913,13 @@
     if (!isFirefox && message.target !== 'offscreen') return false;
     if (isFirefox && message.target && message.target !== 'offscreen') return false;
     if (!isFirefox && (message.type === 'initPopup' || message.type === 'eqTab')) return false;
-    return handle(message).catch((error) => {
+    void handle(message).then((response) => {
+      if (response !== undefined) sendResponse(response);
+    }).catch((error) => {
       console.error('goatEQ audio engine error', error);
-      return { error: error.message ?? String(error) };
+      sendResponse({ error: error.message ?? String(error) });
     });
+    return true;
   });
 
   void ensureInitialized();
